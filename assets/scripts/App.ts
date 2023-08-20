@@ -20,6 +20,8 @@ const kAllFunctions = {
     'saveImageToAlbum': '保存图片到相册',
     'selectImageFromAlbum': '选择相册图片',
     'changeOrientation': '横竖屏',
+    'doFacebookLogin': 'FB登陆',
+    'doAppleLogin': '苹果登陆',
 };
 
 @ccclass('App')
@@ -85,6 +87,14 @@ export class App extends Component {
                     if (ret.filepath) {
                         this.setSprite(ret.filepath);
                     }
+                } else if (arg0 == 'FacebookLogin') {
+                    const ret = JSON.parse(arg1);
+                    if (ret.success) {
+                        this.request('/api/account/facebooklogin', {
+                            access_token: ret.token
+                        }).then((data) => {console.log(data)})
+                        .catch((err) => {console.log(err)});
+                    }
                 }
             }
         }
@@ -104,6 +114,10 @@ export class App extends Component {
 
     getDeviceUuid() {
         console.log(MultiPlatform.instance.getDeviceUuid());
+    }
+
+    getDeviceAdid() {
+        console.log(MultiPlatform.instance.getDeviceAdid());
     }
 
     getNetworkType() {
@@ -232,6 +246,40 @@ export class App extends Component {
 
     changeOrientation() {
         MultiPlatform.instance.changeOrientation(0);
+    }
+
+    doFacebookLogin() {
+        console.log(MultiPlatform.instance.doFacebookLogin());
+    }
+
+    doAppleLogin() {
+        console.log(sys.osVersion, sys.osMainVersion);
+        console.log(MultiPlatform.instance.doAppleLogin());
+    }
+
+    /**
+     * 简单封装fetch函数给登陆服务器发送请求
+     * @param url api url 比如'/api/account/login'
+     * @param body 
+     * @returns 
+     * @example
+     * request('/api/account/login', {account:'test',password:'123456'}).then((data) => {console.log(data)}).catch((err) => {console.log(err)});
+     */
+    public request(url: string, body: object): Promise<any> {
+        console.log('request http:', url, body);
+        return fetch(`http://127.0.0.1:8787/${url}`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response: Response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        });
     }
 }
 

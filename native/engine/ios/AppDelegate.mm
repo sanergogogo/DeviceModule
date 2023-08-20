@@ -33,6 +33,9 @@
 #import "platform/ios/AppDelegateBridge.h"
 #import "service/SDKWrapper.h"
 
+//#import <FBSDKCoreKit/FBSDKCoreKit-Swift.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+
 @implementation AppDelegate
 @synthesize window;
 @synthesize appDelegateBridge;
@@ -60,6 +63,9 @@
     // 添加修改横竖屏事件监听
     _MyInterfaceOrientationMask = UIInterfaceOrientationMaskPortrait;
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(changeOrientation:) name:@"changeOrientation" object:nil];
+    
+    //初始化facebook SDK
+    [[FBSDKApplicationDelegate sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions];
     
     [appDelegateBridge application:application didFinishLaunchingWithOptions:launchOptions];
     return YES;
@@ -125,6 +131,27 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
     [[SDKWrapper shared] applicationWillTerminate:application];
     [appDelegateBridge applicationWillTerminate:application];
+}
+
+// Open URI-scheme for iOS 9 and above
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary *) options {
+    NSLog(@"application:(UIApplication *)application:---url.scheme:%@",url.scheme);
+    if ([url.scheme hasPrefix:@"fb"]) {
+        NSLog(@"is fb login");
+        [[FBSDKApplicationDelegate sharedInstance] application:application openURL:url options:options];
+    } else {
+//       [[AppsFlyerLib shared] handleOpenUrl:url options:options];
+    }
+   
+  return YES;
+}
+
+// Open URI-scheme for iOS 8 and below
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation {
+//    if (![url.scheme hasPrefix:@"fb"]) {
+//       [[AppsFlyerLib shared] handleOpenURL:url sourceApplication:sourceApplication withAnnotation:annotation];
+//    }
+    return YES;
 }
 
 #pragma mark -

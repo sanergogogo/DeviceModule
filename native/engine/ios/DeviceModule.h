@@ -17,5 +17,7 @@
 +(bool) saveImageToAlbum:(NSString *) fullPathForFilename;
 +(bool) selectImageFromAlbum: (NSString*) fullPathForFilename;
 +(bool) changeOrientation: (int) orientation;
++(bool)doFacebookLogin;
++(bool)doAppleLogin;
 
 @end

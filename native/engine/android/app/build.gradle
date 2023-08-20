@@ -114,13 +114,15 @@ dependencies {
     implementation 'androidx.core:core:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 
-    // oaid
-    //implementation ('com.github.gzu-liyujiang:Android_CN_OAID:4.2.5.1')
-
     //图片裁剪
     implementation 'com.github.yalantis:ucrop:2.2.6'
 
     //权限库
     implementation "io.reactivex.rxjava2:rxjava:2.1.2"
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+
+    // 第三方sdk管理
+    implementation project(':lib_common')
+    implementation project(':lib_sdkmgr')
+
 }

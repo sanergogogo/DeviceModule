@@ -52,3 +52,7 @@
 -dontwarn android.hardware.lights.LightsRequest
 -dontwarn android.net.ssl.SSLSockets
 -dontwarn android.os.VibratorManager
+
+# com.applib.**使用了反射不能混淆
+-keep class com.applib.** { *; }
+-keep class com.dm.** { *; }

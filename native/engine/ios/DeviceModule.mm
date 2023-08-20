@@ -9,6 +9,9 @@
 #import <AppTrackingTransparency/AppTrackingTransparency.h>
 #import "CHKeychain/SAMKeychainQuery.h"
 #import "IOSPhotoController.h"
+#import "AppleLogin.h"
+
+#import <FBSDKLoginKit/FBSDKLoginKit.h>
 
 #include "platform/apple/JsbBridge.h"
 
@@ -289,6 +292,52 @@
     return true;
 }
 
+/**
+ fb登录
+ */
++(bool)doFacebookLogin {
+    NSLog(@"fb currentAccessToken:%@",[FBSDKAccessToken currentAccessToken].tokenString);
+    if ([FBSDKAccessToken currentAccessToken]) {
+        NSLog(@"fb已经获得授权");
+        NSDictionary *dict=@{@"success" : @YES, @"token": [FBSDKAccessToken currentAccessToken].tokenString};
+        NSString* jsonstr = [self toJsonString:dict];
+        JsbBridge* m = [JsbBridge sharedInstance];
+        [m sendToScript:@"share" arg1:jsonstr];
+    } else {
+        UIViewController* ctrol = [UIApplication sharedApplication].keyWindow.rootViewController;
+        FBSDKLoginManager *login = [[FBSDKLoginManager alloc] init];
+        [login
+         logInWithPermissions: @[@"public_profile"]
+         fromViewController:ctrol
+         handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
+             if (error) {
+                 NSLog(@"FBSDK Process error");
+             } else if (result.isCancelled) {
+                 NSLog(@"FBSDK Cancelled");
+             } else {
+                 NSLog(@"FBSDK Logged in,token:%@",result.token.tokenString);
+                 NSDictionary *dict=@{@"success" : @YES, @"token": result.token.tokenString};
+                 NSString* jsonstr = [self toJsonString:dict];
+                 JsbBridge* m = [JsbBridge sharedInstance];
+                 [m sendToScript:@"share" arg1:jsonstr];
+             }
+         }];
+    }
+    return true;
+}
+
+/**
+ APPLE登录
+ */
++(bool)doAppleLogin {
+    if (@available(iOS 13.0, *)) {
+        AppleLogin* loginVc = [[AppleLogin alloc] init];
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:loginVc animated:NO completion:nil];
+        return true;
+    }
+    
+    return false;
+}
 
 +(NSString*)toJsonString:(NSDictionary*) dict {
     NSError * err;

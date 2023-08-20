@@ -10,16 +10,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.core.content.FileProvider;
 
+import com.cocos.lib.CocosHelper;
 import com.cocos.lib.CocosReflectionHelper;
+import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
+import com.dm.lib_common.ApiCallback;
+import com.dm.lib_sdkmgr.SdkManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -269,6 +271,58 @@ public class DeviceModule {
             SDKWrapper.shared().getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         } else {
             SDKWrapper.shared().getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        }
+
+        return true;
+    }
+
+    public static boolean doFacebookLogin() {
+        if (!GlobalConfig.HasFacebook) {
+            return false;
+        }
+
+        try {
+            SdkManager.doLoginFacebook(SDKWrapper.shared().getActivity(), new ApiCallback() {
+                @Override
+                public void onSuccess(final String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("success", true);
+                                jsonObject.put("token", code);
+                                JsbBridge.sendToScript("FacebookLogin", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("success", false);
+                                jsonObject.put("msg", code);
+                                JsbBridge.sendToScript("FacebookLogin", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            return false;
         }
 
         return true;

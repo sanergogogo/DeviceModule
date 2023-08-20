@@ -36,6 +36,7 @@ import com.cocos.lib.CocosHelper;
 import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
 import com.cocos.lib.CocosActivity;
+import com.dm.lib_sdkmgr.SdkManager;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.util.FileUtils;
 
@@ -63,16 +64,11 @@ public class AppActivity extends CocosActivity {
 
         //checkGoogleAdId();
 
-        //        boolean privacyPolicyAgreed = true;
-//        if (privacyPolicyAgreed) {
-//            DeviceIdentifier.register(this.getApplication());
-//            // 是否支持OAID/AAID
-//            boolean support = DeviceID.supportedOAID(this);
-//            Log.i(TAG, "supportedOAID:" + (support?"true":"false"));
-//            // 获取OAID/AAID，同步调用
-//            String id = DeviceIdentifier.getOAID(this);
-//            Log.i(TAG, "getOAID:" + id);
-//        }
+        if (GlobalConfig.HasFacebook) {
+            SdkManager.initFacebook(this);
+        }
+
+        //SdkManager.initAppsFlyer(this, GlobalConfig.AppsFlyerKey, GlobalConfig.ChannelId);
     }
 
     @Override
@@ -101,6 +97,11 @@ public class AppActivity extends CocosActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         SDKWrapper.shared().onActivityResult(requestCode, resultCode, data);
+
+        if (GlobalConfig.HasFacebook) {
+            SdkManager.onActivityResultFacebook(this, requestCode, resultCode, data);
+        }
+
         Log.i(TAG, "AppActivity onActivityResult requestCode:" + requestCode + " resultCode:" + resultCode);
 
         switch (requestCode){

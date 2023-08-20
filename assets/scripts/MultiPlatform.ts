@@ -410,4 +410,36 @@ export default class MultiPlatform extends Singleton<MultiPlatform>() {
         }
     }
 
+    /**
+     * Facebook登陆
+     * @returns 
+     */
+    public doFacebookLogin(): boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "doFacebookLogin", "()Z");
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("DeviceModule", "doFacebookLogin");
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * Apple登陆 iOS系统版本需要>=13 如果<13隐藏苹果登陆按钮
+     * @returns 
+     */
+    public doAppleLogin(): boolean {
+        if (sys.isNative && sys.os == sys.OS.IOS) {
+            //@ts-ignore
+            return native.reflection.callStaticMethod("DeviceModule", "doAppleLogin");
+        } else {
+            log('只支持ios系统');
+            return false;
+        }
+    }
+
 }

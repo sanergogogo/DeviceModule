@@ -1,0 +1,22 @@
+include ':libcocos',':libservice',':app'
+project(':libcocos').projectDir     = new File(COCOS_ENGINE_PATH,'cocos/platform/android/libcocos2dx')
+project(':app').projectDir    = new File(NATIVE_DIR, 'app')
+project(':app').name = "DeviceModuleTempl"
+if(PROP_ENABLE_INSTANT_APP == "true" || PROP_ENABLE_INSTANT_APP == "yes") {
+    include ':instantapp'
+    project(':instantapp').projectDir   = new File(NATIVE_DIR, 'instantapp')
+}
+
+rootProject.name = "DeviceModuleTempl"
+include ':lib_common'
+project(':lib_common').projectDir    = new File(NATIVE_DIR, 'lib_common')
+include ':lib_sdkmgr'
+project(':lib_sdkmgr').projectDir    = new File(NATIVE_DIR, 'lib_sdkmgr')
+include ':lib_facebook'
+project(':lib_facebook').projectDir    = new File(NATIVE_DIR, 'lib_facebook')
+include ':lib_adjust'
+project(':lib_adjust').projectDir    = new File(NATIVE_DIR, 'lib_adjust')
+include ':lib_firebase'
+project(':lib_firebase').projectDir    = new File(NATIVE_DIR, 'lib_firebase')
+include ':lib_appsflyer'
+project(':lib_appsflyer').projectDir    = new File(NATIVE_DIR, 'lib_appsflyer')

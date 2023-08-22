@@ -13,7 +13,7 @@
 +(void) shareImage: (NSString *) uri andScheme: (NSString *) scheme;
 +(void) shareVideo: (NSString *) uri andScheme: (NSString *) scheme;
 +(void) shareFile: (NSString *) uri andScheme: (NSString *) scheme;
-+(bool) appInstalled:(NSString *) scheme;
++(bool) checkAppInstalled:(NSString *) scheme;
 +(bool) saveImageToAlbum:(NSString *) fullPathForFilename;
 +(bool) selectImageFromAlbum: (NSString*) fullPathForFilename;
 +(bool) changeOrientation: (int) orientation;

@@ -15,9 +15,8 @@
     <!--    调用相机权限
     <uses-permission android:name="android.permission.CAMERA" />
     -->
-    <!--    谷歌广告id
+    <!--    谷歌广告id-->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
-    -->
 
     <application
         android:extractNativeLibs="true"

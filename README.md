@@ -42,3 +42,10 @@
       ```
    10. build setting -> Apple LLVM9.1 - Language - Objective C -> Weak References in Manual Retain Release YES
 6. 在项目重新引用相关文件
+## TODO
+1. firebase ios未测试
+2. appsflyer 事件上报
+3. google pay
+4. apple pay
+5. apple login
+6. ios 消息推送 用firebase

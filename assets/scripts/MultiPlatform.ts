@@ -33,7 +33,22 @@ export type SelectImageCropParam = {
     aspectRatioY: number,   // 图片剪切的宽高比 aspectRatioX:aspectRatioY 1:1 16:9等
     maxWidth: number,       // 图片最大返回宽
     maxHeight: number,       // 图片最大返回高
-}
+};
+
+// 埋点追踪事件
+export type TrackEventDataBase = {
+    event_name: string,         // 事件名
+    event_type: number,         // 事件类型 0普通事件 1付费事件
+    value: number,             // 付费金额 付费事件必须传
+    currency: string,          // 付费金额单位 付费事件必须传
+    transaction_id: string,    // 付费订单号 付费事件必须传
+};
+
+export type TrackEventData<EventType extends number> = 
+    EventType extends 1 ? 
+    (TrackEventDataBase & { event_type: 1 })
+    :(Pick<TrackEventDataBase, 'event_name' | 'event_type'> & { event_type: 0 });
+
 
 /**
  * 多平台管理
@@ -438,6 +453,218 @@ export default class MultiPlatform extends Singleton<MultiPlatform>() {
             return native.reflection.callStaticMethod("DeviceModule", "doAppleLogin");
         } else {
             log('只支持ios系统');
+            return false;
+        }
+    }
+
+    /**
+     * Apple支付
+     * @returns 
+     */
+    public doApplePay(): boolean {
+        if (sys.isNative && sys.os == sys.OS.IOS) {
+            //@ts-ignore
+            return native.reflection.callStaticMethod("DeviceModule", "doApplePay");
+        } else {
+            log('只支持ios系统');
+            return false;
+        }
+    }
+
+    /**
+     * Google支付
+     * @returns 
+     */
+    public doGooglePay(): boolean {
+        if (sys.isNative && sys.os == sys.OS.ANDROID) {
+            return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "doGooglePay", "()Z");
+        } else {
+            log('只支持android系统');
+            return false;
+        }
+    }
+
+    /**
+     * 是否支持firebase
+     */
+    public hasFirebase() : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "hasFirebase", "()Z");
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("FirebaseModule", "hasFirebase");
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 追踪事件
+     * @param eventData
+     */
+    public trackEventFirebase(eventData: TrackEventData<0> | TrackEventData<1>) : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "trackEventFirebase", "(Ljava/lang/String;)Z", JSON.stringify(eventData));
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("FirebaseModule", "trackEvent:", JSON.stringify(eventData));
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 请求android的通知权限
+     * @returns 
+     */
+    public requestNotificationPermission() : boolean {
+        if (sys.isNative && sys.os == sys.OS.ANDROID) {
+            return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "requestNotificationPermission", "()Z");
+        } else {
+            log('只支持android系统');
+            return false;
+        }
+    }
+
+    /**
+     * 请求android的权限，这里主要是用来存储uuid需要的READ_EXTERNAL_STORAGE权限，只是顺便提供了一个接口。
+     * @param permissions 需要动态申请的权限数组 比如['android.permission.READ_EXTERNAL_STORAGE', 'android.permission.WRITE_EXTERNAL_STORAGE']
+     * @returns 
+     */
+    public requestPermissions(permissions: string[]) : boolean {
+        if (sys.isNative && sys.os == sys.OS.ANDROID) {
+            return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "requestPermissions", "(Ljava/lang/String;)Z", JSON.stringify(permissions));
+        } else {
+            log('只支持android系统');
+            return false;
+        }
+    }
+
+    /**
+     * 获取firebase的推送token 在native.bridge.onNative中接收FirebaseToken事件
+     */
+    public getTokenFirebase() : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "getTokenFirebase", "()Z");
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("FirebaseModule", "getTokenFirebase");
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 是否启用firebase的分析功能，因为有可能只用firebase的推送功能
+     * @param enabled 
+     */
+    public setAnalyticsCollectionEnabledFirebase(enabled: boolean) {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "setAnalyticsCollectionEnabledFirebase", "(Z)V", enabled);
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("FirebaseModule", "setAnalyticsCollectionEnabledFirebase:", enabled);
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 获取firebase的推送消息
+     * @returns 返回json字符串
+     */
+    public getMessageFirebase() : string {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "getMessageFirebase", "()Ljava/lang/String;");
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("FirebaseModule", "getMessageFirebase");
+            }
+        } else {
+            log('只支持原生平台');
+            return '{}';
+        }
+    }
+
+    /**
+     * 是否支持adjust
+     */
+    public hasAdjust() : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "hasAdjust", "()Z");
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("AdjustModule", "hasAdjust");
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 追踪事件
+     * @param eventData
+     */
+    public trackEventAdjust(eventData: TrackEventData<0> | TrackEventData<1>) : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "trackEventAdjust", "(Ljava/lang/String;)Z", JSON.stringify(eventData));
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("AdjustModule", "trackEvent:", JSON.stringify(eventData));
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 是否支持appsflyer
+     */
+    public hasAppsFlyer() : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "hasAppsFlyer", "()Z");
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("AppsFlyerModule", "hasAppsFlyer");
+            }
+        } else {
+            log('只支持原生平台');
+            return false;
+        }
+    }
+
+    /**
+     * 追踪事件
+     * @param eventData
+     */
+    public trackEventAppsFlyer(eventData: TrackEventData<0> | TrackEventData<1>) : boolean {
+        if (sys.isNative) {
+            if (sys.os == sys.OS.ANDROID) {
+                return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "trackEventAppsFlyer", "(Ljava/lang/String;)Z", JSON.stringify(eventData));
+            } else if (sys.os == sys.OS.IOS) {
+                //@ts-ignore
+                return native.reflection.callStaticMethod("AppsFlyerModule", "trackEvent:", JSON.stringify(eventData));
+            }
+        } else {
+            log('只支持原生平台');
             return false;
         }
     }

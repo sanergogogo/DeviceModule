@@ -19,17 +19,17 @@ import com.cocos.lib.CocosHelper;
 import com.cocos.lib.CocosReflectionHelper;
 import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
-import com.dm.lib_common.ApiCallback;
-import com.dm.lib_sdkmgr.SdkManager;
+import com.applib.lib_common.ApiCallback;
+import com.applib.lib_sdkmgr.SdkManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.UUID;
 
 public class DeviceModule {
 
@@ -69,10 +69,32 @@ public class DeviceModule {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return uuid;
     }
 
     public static String getDeviceAdid() {
+        do {
+            if (!ad_id.isEmpty()) {
+                break;
+            }
+
+            if (GlobalConfig.HasAppsFlyer) {
+                ad_id = SdkManager.getAdidAppsFlyer();
+                if (!ad_id.isEmpty()) {
+                    break;
+                }
+            }
+
+            if (GlobalConfig.HasAdjust) {
+                ad_id = SdkManager.getAdidAdjust();
+                if (!ad_id.isEmpty()) {
+                    break;
+                }
+            }
+
+        } while (false);
+
         return ad_id;
     }
 
@@ -276,6 +298,10 @@ public class DeviceModule {
         return true;
     }
 
+    public static boolean hasFacebook() {
+        return GlobalConfig.HasFacebook;
+    }
+
     public static boolean doFacebookLogin() {
         if (!GlobalConfig.HasFacebook) {
             return false;
@@ -324,6 +350,163 @@ public class DeviceModule {
         } catch (Exception e) {
             return false;
         }
+
+        return true;
+    }
+
+    public static boolean hasFirebase() {
+        return GlobalConfig.HasFirebase;
+    }
+
+    public static boolean trackEventFirebase(String eventData) {
+        if (!GlobalConfig.HasFirebase) {
+            return false;
+        }
+        SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SdkManager.trackEventFirebase(eventData);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return true;
+    }
+
+    public static boolean requestNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getPermissionRequest().request(new String[]{Manifest.permission.POST_NOTIFICATIONS})
+                            .subscribe(granted -> {
+                                //授权再次进行定位
+                                if (granted) {
+                                    //getTokenFirebase();
+                                }
+                            });
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean requestPermissions(String jsonArrayPermissions) {
+        try {
+            JSONArray jsonArray = new JSONArray(jsonArrayPermissions);
+            String[] permissions = new String[jsonArray.length()];
+            for (int i = 0; i < jsonArray.length(); i++) {
+                permissions[i] = jsonArray.optString(i);
+            }
+            if (jsonArray.length() > 0) {
+                SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getPermissionRequest().request(permissions)
+                                .subscribe(granted -> {
+                                    //授权再次进行定位
+                                    if (granted) {
+                                    }
+                                });
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public static boolean getTokenFirebase() {
+        if (!GlobalConfig.HasFirebase) {
+            return false;
+        }
+        SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SdkManager.getTokenFirebase(new ApiCallback() {
+                        @Override
+                        public void onSuccess(String code) {
+                            CocosHelper.runOnGameThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject();
+                                        jsonObject.put("token", code);
+                                        JsbBridge.sendToScript("FirebaseToken", jsonObject.toString());
+                                    } catch (JSONException ex) {
+                                        // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                        Log.e(TAG, "json object exception:" + ex.getMessage());
+                                    }
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFail(String code) {
+
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return true;
+    }
+
+    // 可能只使用推送功能
+    public static void setAnalyticsCollectionEnabledFirebase(boolean enabled) {
+        if (!GlobalConfig.HasFirebase) {
+            return;
+        }
+        try {
+            SdkManager.setAnalyticsCollectionEnabledFirebase(enabled);
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    public static String getMessageFirebase() {
+        if (!GlobalConfig.HasFirebase) {
+            return "";
+        }
+        String message = "";
+        try {
+            message = SdkManager.getMessageFirebase();
+        } catch (Exception e) {
+
+        }
+        return message;
+    }
+
+    public static boolean hasAdjust() {
+        return GlobalConfig.HasAdjust;
+    }
+
+    public static boolean trackEventAdjust(String eventData) {
+        if (!GlobalConfig.HasAdjust) {
+            return false;
+        }
+        SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SdkManager.trackEventAdjust(eventData);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         return true;
     }

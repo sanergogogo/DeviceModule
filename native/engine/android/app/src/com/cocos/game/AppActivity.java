@@ -36,7 +36,7 @@ import com.cocos.lib.CocosHelper;
 import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
 import com.cocos.lib.CocosActivity;
-import com.dm.lib_sdkmgr.SdkManager;
+import com.applib.lib_sdkmgr.SdkManager;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.util.FileUtils;
 
@@ -44,8 +44,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 
 public class AppActivity extends CocosActivity {
@@ -62,13 +60,24 @@ public class AppActivity extends CocosActivity {
 
         sActivity = this;
 
-        //checkGoogleAdId();
+        checkGoogleAdId();
 
         if (GlobalConfig.HasFacebook) {
             SdkManager.initFacebook(this);
         }
 
-        //SdkManager.initAppsFlyer(this, GlobalConfig.AppsFlyerKey, GlobalConfig.ChannelId);
+        if (GlobalConfig.HasFirebase) {
+            initFireBasePush();
+            SdkManager.initFirebase(this);
+        }
+
+        if (GlobalConfig.HasAdjust) {
+            SdkManager.initAdjust(this.getApplicationContext(), GlobalConfig.AdjustKey, GlobalConfig.ChannelId);
+        }
+
+        if (GlobalConfig.HasAppsFlyer) {
+            SdkManager.initAppsFlyer(this, GlobalConfig.AppsFlyerKey, GlobalConfig.ChannelId);
+        }
     }
 
     @Override
@@ -270,9 +279,8 @@ public class AppActivity extends CocosActivity {
                 @Override
                 public void run() {
                     try {
-                        String id = AdvertisingIdClient.getGoogleAdId(getApplicationContext());
-                        System.out.println("the ad id is" + id);
-                        Log.i(TAG, "the ad id is" + id);
+                        String id = GoogleAdvertisingId.getGAID(getApplicationContext());
+                        Log.i(TAG, "google ad id is" + id);
                         DeviceModule.ad_id = id;
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -282,5 +290,23 @@ public class AppActivity extends CocosActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // 初始化firebase推送
+    protected void initFireBasePush() {
+        String channelId = GlobalConfig.ChannelId;
+        String topic = channelId;
+        Log.d("AppActivity：topic", topic);
+        SdkManager.setMContextFirebase(this);
+        SdkManager.subscribeToTopicFirebase(topic);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            int firebase = bundle.getInt("firebase");
+            String message = bundle.getString("message");
+            SdkManager.setMessageFirebase(message);
+            Log.e(TAG, "onResume:FireBasePushData: " + "firebase:" + firebase + " ----message:" + message);
+        }
+
     }
 }

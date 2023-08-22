@@ -121,8 +121,14 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:2.1.2"
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
 
+    //google广告标识
+    implementation('com.google.android.gms:play-services-ads-identifier:18.0.1')
+
     // 第三方sdk管理
     implementation project(':lib_common')
     implementation project(':lib_sdkmgr')
 
 }
+
+// firebase
+apply plugin: 'com.google.gms.google-services'

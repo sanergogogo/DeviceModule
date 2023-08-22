@@ -36,6 +36,9 @@
 //#import <FBSDKCoreKit/FBSDKCoreKit-Swift.h>
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 
+#import "FirebaseModule.h"
+#import "AdjustModule.h"
+
 @implementation AppDelegate
 @synthesize window;
 @synthesize appDelegateBridge;
@@ -65,7 +68,16 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(changeOrientation:) name:@"changeOrientation" object:nil];
     
     //初始化facebook SDK
+    [[FBSDKSettings sharedSettings] setAdvertiserIDCollectionEnabled:FALSE];
+    [[FBSDKSettings sharedSettings] setAutoLogAppEventsEnabled:FALSE];
     [[FBSDKApplicationDelegate sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions];
+    
+    //初始化firebase SDK
+    [FirebaseModule initSdk];
+    
+    //初始化Adjust SDK
+    [AdjustModule initSdk];
+
     
     [appDelegateBridge application:application didFinishLaunchingWithOptions:launchOptions];
     return YES;

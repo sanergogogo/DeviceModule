@@ -1,5 +1,5 @@
 import { _decorator, assetManager, Button, Camera, Component, EventHandler, ImageAsset, instantiate, Label, Layout, native, Node, RenderTexture, resources, Sprite, SpriteFrame, sys, tween, UITransform, view } from 'cc';
-import MultiPlatform, { CheckAppInstalledName } from './MultiPlatform';
+import MultiPlatform, { CheckAppInstalledName, TrackEventData } from './MultiPlatform';
 const { ccclass, property } = _decorator;
 
 // 所有功能
@@ -22,6 +22,9 @@ const kAllFunctions = {
     'changeOrientation': '横竖屏',
     'doFacebookLogin': 'FB登陆',
     'doAppleLogin': '苹果登陆',
+    'trackEventFirebase': 'Firebase事件',
+    'trackEventAppsFlyer': 'AppsFlyer事件',
+    'trackEventAdjust': 'Adjust事件',
 };
 
 @ccclass('App')
@@ -255,6 +258,57 @@ export class App extends Component {
     doAppleLogin() {
         console.log(sys.osVersion, sys.osMainVersion);
         console.log(MultiPlatform.instance.doAppleLogin());
+    }
+
+    trackEventFirebase() {
+        const eventData : TrackEventData<0> = {
+            event_name: 'normal_event',
+            event_type: 0,
+        };
+        MultiPlatform.instance.trackEventFirebase(eventData);
+        
+        const eventData1 : TrackEventData<1> = {
+            event_name: 'purchase',
+            event_type: 1,
+            value: 100.00,
+            currency: 'USD',
+            transaction_id: '123123'
+        };
+        MultiPlatform.instance.trackEventFirebase(eventData1);
+    }
+
+    trackEventAppsFlyer() {
+        const eventData : TrackEventData<0> = {
+            event_name: 'normal_event',
+            event_type: 0,
+        };
+        MultiPlatform.instance.trackEventAppsFlyer(eventData);
+        
+        const eventData1 : TrackEventData<1> = {
+            event_name: 'purchase',
+            event_type: 1,
+            value: 100.00,
+            currency: 'USD',
+            transaction_id: '123123'
+        };
+        MultiPlatform.instance.trackEventAppsFlyer(eventData1);
+    }
+
+    trackEventAdjust() {
+        const eventData : TrackEventData<0> = {
+            event_name: 'normal_event',
+            event_type: 0,
+        };
+        MultiPlatform.instance.trackEventAdjust(eventData);
+        
+        const eventData1 : TrackEventData<1> = {
+            event_name: 'purchase',
+            event_type: 1,
+            value: 100.00,
+            currency: 'USD',
+            transaction_id: '123123'
+        };
+        MultiPlatform.instance.trackEventAdjust(eventData1);
     }
 
     /**

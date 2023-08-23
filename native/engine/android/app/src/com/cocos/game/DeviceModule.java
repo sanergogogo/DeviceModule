@@ -58,7 +58,7 @@ public class DeviceModule {
         return Build.BRAND + "|" + Build.MODEL;
     }
 
-    // 必须先申请READ_EXTERNAL_STORAGE权限
+    // 必须先申请READ_EXTERNAL_STORAGE权限 android>=13 READ_MEDIA_IMAGES
     public static String getDeviceUuid() {
         if (uuid != "") {
             return uuid;
@@ -250,40 +250,75 @@ public class DeviceModule {
      * @returns
      */
     public static boolean saveImageToAlbum(String fullPathForFilename) {
-        SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getPermissionRequest().request(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE})
-                        .subscribe(granted -> {
-                            //授权再次进行定位
-                            if (granted) {
-                                AlbumUtils.saveImgFileToAlbum(_getContext(), fullPathForFilename);
-                                //Toast.makeText(_getContext(), "保存成功！", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getPermissionRequest().request(new String[]{Manifest.permission.READ_MEDIA_IMAGES})
+                            .subscribe(granted -> {
+                                //授权再次进行定位
+                                if (granted) {
+                                    AlbumUtils.saveImgFileToAlbum(_getContext(), fullPathForFilename);
+                                    //Toast.makeText(_getContext(), "保存成功！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            });
+        } else {
+            SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getPermissionRequest().request(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE})
+                            .subscribe(granted -> {
+                                //授权再次进行定位
+                                if (granted) {
+                                    AlbumUtils.saveImgFileToAlbum(_getContext(), fullPathForFilename);
+                                    //Toast.makeText(_getContext(), "保存成功！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            });
+        }
 
         return true;
     }
 
     public static boolean selectImageFromAlbum(String jsonStr) {
-        SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getPermissionRequest().request(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE})
-                        .subscribe(granted -> {
-                            //授权再次进行定位
-                            if (granted) {
-                                cropOptions = jsonStr;
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_PICK);
-                                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                                SDKWrapper.shared().getActivity().startActivityForResult(intent, 100);
-                            }
-                        });
-            }
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getPermissionRequest().request(new String[]{Manifest.permission.READ_MEDIA_IMAGES})
+                            .subscribe(granted -> {
+                                //授权再次进行定位
+                                if (granted) {
+                                    cropOptions = jsonStr;
+                                    Intent intent = new Intent();
+                                    intent.setAction(Intent.ACTION_PICK);
+                                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                                    SDKWrapper.shared().getActivity().startActivityForResult(intent, 100);
+                                }
+                            });
+                }
+            });
+        } else {
+            SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getPermissionRequest().request(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE})
+                            .subscribe(granted -> {
+                                //授权再次进行定位
+                                if (granted) {
+                                    cropOptions = jsonStr;
+                                    Intent intent = new Intent();
+                                    intent.setAction(Intent.ACTION_PICK);
+                                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                                    SDKWrapper.shared().getActivity().startActivityForResult(intent, 100);
+                                }
+                            });
+                }
+            });
+        }
 
         return true;
     }
@@ -385,8 +420,17 @@ public class DeviceModule {
                     getPermissionRequest().request(new String[]{Manifest.permission.POST_NOTIFICATIONS})
                             .subscribe(granted -> {
                                 //授权再次进行定位
+                                boolean success = false;
                                 if (granted) {
-                                    //getTokenFirebase();
+                                    success = true;
+                                }
+                                try {
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("success", success);
+                                    JsbBridge.sendToScript("RequestNotificationPermission", jsonObject.toString());
+                                } catch (JSONException ex) {
+                                    // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                    Log.e(TAG, "json object exception:" + ex.getMessage());
                                 }
                             });
                 }
@@ -396,6 +440,11 @@ public class DeviceModule {
         return false;
     }
 
+    /**
+     * 请求相册权限android>=13 READ_MEDIA_IMAGES 否则READ_EXTERNAL_STORAGE
+     * @param jsonArrayPermissions
+     * @return
+     */
     public static boolean requestPermissions(String jsonArrayPermissions) {
         try {
             JSONArray jsonArray = new JSONArray(jsonArrayPermissions);
@@ -410,7 +459,18 @@ public class DeviceModule {
                         getPermissionRequest().request(permissions)
                                 .subscribe(granted -> {
                                     //授权再次进行定位
+                                    boolean success = false;
                                     if (granted) {
+                                        success = true;
+                                    }
+                                    try {
+                                        JSONObject jsonObject = new JSONObject();
+                                        jsonObject.put("success", success);
+                                        jsonObject.put("permissions", jsonArrayPermissions);
+                                        JsbBridge.sendToScript("RequestPermissions", jsonObject.toString());
+                                    } catch (JSONException ex) {
+                                        // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                        Log.e(TAG, "json object exception:" + ex.getMessage());
                                     }
                                 });
                     }

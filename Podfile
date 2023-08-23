@@ -33,7 +33,9 @@ target 'DeviceModuleTempl-mobile' do
   # For Analytics without IDFA collection capability, use this pod instead
   # pod ‘Firebase/AnalyticsWithoutAdIdSupport’
   
-  #pod 'FirebaseMessaging'
+  pod 'FirebaseMessaging'
+
+  pod 'AppsFlyerFramework'
 end
 
 

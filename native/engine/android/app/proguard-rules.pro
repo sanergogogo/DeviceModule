@@ -55,7 +55,6 @@
 
 # com.applib.**使用了反射不能混淆
 -keep class com.applib.** { *; }
--keep class com.dm.** { *; }
 
 # adjust
 -keep class com.adjust.sdk.**{ *; }

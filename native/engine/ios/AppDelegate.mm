@@ -38,6 +38,7 @@
 
 #import "FirebaseModule.h"
 #import "AdjustModule.h"
+#import "AppsFlyerModule.h"
 
 @implementation AppDelegate
 @synthesize window;
@@ -78,6 +79,8 @@
     //初始化Adjust SDK
     [AdjustModule initSdk];
 
+    //初始化Appsflyer SDK
+    [AppsFlyerModule initSdk];
     
     [appDelegateBridge application:application didFinishLaunchingWithOptions:launchOptions];
     return YES;
@@ -123,6 +126,8 @@
      */
     [[SDKWrapper shared] applicationDidBecomeActive:application];
     [appDelegateBridge applicationDidBecomeActive:application];
+    
+    [AppsFlyerModule start];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -152,7 +157,7 @@
         NSLog(@"is fb login");
         [[FBSDKApplicationDelegate sharedInstance] application:application openURL:url options:options];
     } else {
-//       [[AppsFlyerLib shared] handleOpenUrl:url options:options];
+        [AppsFlyerModule handleOpenUrl:url options:options];
     }
    
   return YES;
@@ -160,9 +165,9 @@
 
 // Open URI-scheme for iOS 8 and below
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation {
-//    if (![url.scheme hasPrefix:@"fb"]) {
-//       [[AppsFlyerLib shared] handleOpenURL:url sourceApplication:sourceApplication withAnnotation:annotation];
-//    }
+    if (![url.scheme hasPrefix:@"fb"]) {
+        [AppsFlyerModule handleOpenUrl2:url sourceApplication:sourceApplication annotation:annotation];
+    }
     return YES;
 }
 

@@ -79,7 +79,7 @@ public class FacebookLoginManager {
     }
 
     public void onActivityResult(Integer requestCode, Integer resultCode, Intent data){
-        Log.d(TAG, "onActivityResult: "+"resultCode:"+resultCode+"   requestCode:" +resultCode+ "  data:"+data.getDataString());
+        Log.d(TAG, "onActivityResult: "+"resultCode:"+resultCode+"   requestCode:" +resultCode+ "  data:"+(data != null ? data.getDataString() : ""));
         if (callbackManager != null){
             callbackManager.onActivityResult(requestCode, resultCode, data);
         }

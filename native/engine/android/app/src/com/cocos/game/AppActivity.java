@@ -127,7 +127,6 @@ public class AppActivity extends CocosActivity {
                             // 键为null或使用json不支持的数字格式(NaN, infinities)
                             Log.e(TAG, "json object exception:" + ex.getMessage());
                         }
-
                     }
                 });
                 break;

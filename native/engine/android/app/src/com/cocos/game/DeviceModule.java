@@ -511,6 +511,28 @@ public class DeviceModule {
         return true;
     }
 
+    public static boolean hasAppsFlyer() {
+        return GlobalConfig.HasAppsFlyer;
+    }
+
+    public static boolean trackEventAppsFlyer(String eventData) {
+        if (!GlobalConfig.HasAppsFlyer) {
+            return false;
+        }
+        SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SdkManager.trackEventAppsFlyer(eventData);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return true;
+    }
+
     // 将File 转化为 content://URI
     private static Uri getFileProvider(Context context, File file) {
         // ‘authority’要与`AndroidManifest.xml`中`provider`配置的`authorities`一致，假设你的应用包名为com.example.app

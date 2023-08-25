@@ -58,7 +58,18 @@ public class DeviceModule {
         return Build.BRAND + "|" + Build.MODEL;
     }
 
-    // 必须先申请READ_EXTERNAL_STORAGE权限 android>=13 READ_MEDIA_IMAGES
+    /**
+     * 获取设备唯一id
+     * 流程：
+     * 1.从SharedPreferences获取id，如果能获取到 会同时更新文件(如果文件没有),否则进入第2步。
+     * 2.从文件获取(android10以上从媒体数据库获取，10以下从外部存储目录获取),如果能获取到,说明应用卸载过，会同时更新SharedPreferences方便下次从sp读取，否则进入第3步。
+     * 3.创建uuid,同时保存到SharedPreferences和文件。
+     * 权限：android10以上读取媒体数据库需要READ_EXTERNAL_STORAGE权限或者READ_MEDIA_IMAGES(android>=13) 10以下步需要权限
+     * 如果没有相应权限，且应用被卸载过或者清除过数据就会导致重新生成新的uuid
+     * 所以：
+     * 1.如果是严格要求uuid的应用，必须在获取uuid之前提前申请权限。
+     * @return
+     */
     public static String getDeviceUuid() {
         if (uuid != "") {
             return uuid;

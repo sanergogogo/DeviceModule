@@ -34,12 +34,12 @@ public class GuidUtil {
 
     private static final String TAG = GuidUtil.class.getSimpleName();
     private static final String GUID_KEY = "guid";
-    private static final String TEMP_DIR = "poker";
+    private static final String TEMP_DIR = "wwwddd";
     private static final String RELATIVE_PATH = Environment.DIRECTORY_PICTURES + File.separator + TEMP_DIR;
-    private static final String GUID_FILE_NAME_EXT = "poker-guid.jpg";
-    private static final String GUID_FILE_NAME = "poker-guid";
+    private static final String GUID_FILE_NAME_EXT = "wwwddd-guid.jpg";
+    private static final String GUID_FILE_NAME = "wwwddd-guid";
     // 10.0以下创建隐藏目录
-    private static final String GUID_FILE_NAME_HIDE = ".poker-guid";
+    private static final String GUID_FILE_NAME_HIDE = ".wwwddd-guid";
     //private static final String GUID_MIME_TYPE = "application/octet-stream";
 
     private static final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + GUID_FILE_NAME_HIDE;
@@ -107,11 +107,11 @@ public class GuidUtil {
                 String relativePath = query.getString(query.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH));
                 // 相对路径和文件名一致时，才确定有数据
                 if (title.equals(GUID_FILE_NAME) && (RELATIVE_PATH + File.separator).equals(relativePath)) {
-                    Log.e(TAG, "查询成功，title路径：" + title);
-                    Log.e(TAG, "查询成功，relativePath路径：" + relativePath);
+                    //Log.e(TAG, "查询成功，title路径：" + title);
+                    //Log.e(TAG, "查询成功，relativePath路径：" + relativePath);
                     Uri uri = ContentUris.withAppendedId(external, id);
                     query.close();
-                    Log.e(TAG, "查询成功，Uri路径：" + uri.toString());
+                    //Log.e(TAG, "查询成功，Uri路径：" + uri.toString());
                     return uri;
                 }
             }

@@ -5,6 +5,10 @@ public class GlobalConfig {
 	// 渠道id
 	public static String ChannelId = "channelId";
 
+	// 安装归因
+	public static boolean HasInstallReferrer = true;
+	public static String InstallReferrer = "";
+
 	// 是否使用facebook
 	public static boolean HasFacebook = true;
 

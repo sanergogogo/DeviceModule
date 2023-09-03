@@ -124,6 +124,9 @@ dependencies {
     //google广告标识
     implementation('com.google.android.gms:play-services-ads-identifier:18.0.1')
 
+    //google安装归因
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+
     // 第三方sdk管理
     implementation project(':lib_common')
     implementation project(':lib_sdkmgr')

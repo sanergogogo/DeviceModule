@@ -23,6 +23,7 @@ public class AdjustManager {
     static {
         eventMap.put("purchase", "mfmtqc");
         eventMap.put("normal_event", "wxyb47");
+        eventMap.put("z_login", "appns2");
     }
 
     public static void init(Context context, String key, String channelId) {

@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.cocos.lib.CocosHelper;
@@ -61,6 +62,11 @@ public class AppActivity extends CocosActivity {
         sActivity = this;
 
         checkGoogleAdId();
+
+        // 安装归因
+        if (GlobalConfig.HasInstallReferrer && TextUtils.isEmpty(SPUtil.getString(this, "InstallReferrer", ""))) {
+            GoogleReferrerHelper.getInstance().start(this);
+        }
 
         if (GlobalConfig.HasFacebook) {
             SdkManager.initFacebook(this);

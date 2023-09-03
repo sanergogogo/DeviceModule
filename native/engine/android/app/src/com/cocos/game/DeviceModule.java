@@ -344,6 +344,10 @@ public class DeviceModule {
         return true;
     }
 
+    public static String getInstallReferrer() {
+        return GlobalConfig.InstallReferrer;
+    }
+
     public static boolean hasFacebook() {
         return GlobalConfig.HasFacebook;
     }

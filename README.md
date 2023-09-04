@@ -49,3 +49,4 @@
 4. apple pay
 5. apple login
 6. ios 消息推送 用firebase
+7. 新增branch.io的sdk以实现自定义的深度链接

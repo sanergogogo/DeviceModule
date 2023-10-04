@@ -1,5 +1,7 @@
 import { _decorator, assetManager, Button, Camera, Component, EventHandler, ImageAsset, instantiate, Label, Layout, native, Node, RenderTexture, resources, Sprite, SpriteFrame, sys, tween, UITransform, view } from 'cc';
 import MultiPlatform, { CheckAppInstalledName, TrackEventData } from './MultiPlatform';
+import { Graphics } from 'cc';
+import { CQRCode } from './CQRCode';
 const { ccclass, property } = _decorator;
 
 // 所有功能
@@ -25,6 +27,7 @@ const kAllFunctions = {
     'trackEventFirebase': 'Firebase事件',
     'trackEventAppsFlyer': 'AppsFlyer事件',
     'trackEventAdjust': 'Adjust事件',
+    'qrcode': '二维码',
 };
 
 @ccclass('App')
@@ -334,6 +337,13 @@ export class App extends Component {
                 throw new Error(response.statusText);
             }
         });
+    }
+
+    qrcode() {
+        const qrnode = this.node.getChildByName('QRCode');
+        qrnode.active = !qrnode.active;
+        const qr = qrnode.getComponent(CQRCode);
+        qr.string = 'https://baidu.com';
     }
 }
 

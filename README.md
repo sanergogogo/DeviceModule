@@ -1,3 +1,49 @@
+## android项目
+1. 在项目根目录的build.gradle添加
+   ```
+   allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()   // for com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar
+        maven { url 'https://jitpack.io' }
+        maven {
+            url "https://developer.huawei.com/repo/"
+        }
+    }
+   }
+   ```
+   以及
+   ```
+   dependencies {
+        classpath 'com.android.tools.build:gradle:8.0.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+
+        classpath 'com.google.gms:google-services:4.3.15' // Google Services plugin firebase
+   }
+   ```
+2. 项目路径下的settings.gradle添加
+   ```
+   rootProject.name = "DeviceModuleTempl"
+   include ':lib_common'
+   include ':lib_adjust'
+   include ':lib_appsflyer'
+   include ':lib_facebook'
+   include ':lib_firebase'
+   include ':lib_sdkmgr'
+   include ':lib_googlepay'
+   include ':lib_branch'
+   project(':lib_common').projectDir    = new File(NATIVE_DIR, 'lib_common')
+   project(':lib_sdkmgr').projectDir    = new File(NATIVE_DIR, 'lib_sdkmgr')
+   project(':lib_appsflyer').projectDir    = new File(NATIVE_DIR, 'lib_appsflyer')
+   project(':lib_facebook').projectDir    = new File(NATIVE_DIR, 'lib_facebook')
+   project(':lib_adjust').projectDir    = new File(NATIVE_DIR, 'lib_adjust')
+   project(':lib_firebase').projectDir    = new File(NATIVE_DIR, 'lib_firebase')
+   project(':lib_googlepay').projectDir    = new File(NATIVE_DIR, 'lib_googlepay')
+   project(':lib_branch').projectDir    = new File(NATIVE_DIR, 'lib_branch')
+   ```
 ## ios项目
 #### CocosCreator构建ios项目
 1. Bundle Display Name App显示名字

@@ -4,11 +4,11 @@ plugins {
 
 android {
     namespace 'com.applib.lib_appsflyer'
-    compileSdk 33
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
-        minSdk 21
-        targetSdk 33
+        minSdk PROP_MIN_SDK_VERSION.toInteger()
+        targetSdk PROP_TARGET_SDK_VERSION.toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -44,7 +44,7 @@ dependencies {
     implementation 'com.appsflyer:af-android-sdk:6.12.1'
 
     // https://zh.dev.appsflyer.com/hc/docs/oaid
-    implementation 'com.appsflyer:oaid:6.9.0'
+    //implementation 'com.appsflyer:oaid:6.9.0'
     //implementation files('libs/oaid_sdk_2.2.0.aar')
-    implementation 'com.huawei.hms:ads-identifier:3.4.56.300'
+    //implementation 'com.huawei.hms:ads-identifier:3.4.56.300'
 }

@@ -60,7 +60,7 @@
         <!-- 系统分享需要文件共享 -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.cocos.game.fileProvider"
+            android:authorities="com.cocos.game.share.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

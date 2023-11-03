@@ -4,11 +4,11 @@ plugins {
 
 android {
     namespace 'com.applib.lib_sdkmgr'
-    compileSdk 33
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
-        minSdk 21
-        targetSdk 33
+        minSdk PROP_MIN_SDK_VERSION.toInteger()
+        targetSdk PROP_TARGET_SDK_VERSION.toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -37,9 +37,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation project(':lib_common')
+
+    // 按需导入相应的库
     implementation project(':lib_facebook')
     implementation project(':lib_firebase')
     implementation project(':lib_appsflyer')
     implementation project(':lib_adjust')
+
+    implementation project(':lib_googlepay')
 
 }

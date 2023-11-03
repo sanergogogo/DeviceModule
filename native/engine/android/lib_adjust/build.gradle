@@ -4,11 +4,11 @@ plugins {
 
 android {
     namespace 'com.applib.lib_adjust'
-    compileSdk 33
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
-        minSdk 21
-        targetSdk 33
+        minSdk PROP_MIN_SDK_VERSION.toInteger()
+        targetSdk PROP_TARGET_SDK_VERSION.toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

@@ -21,8 +21,8 @@ android {
         applicationId APPLICATION_ID
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
-        versionCode 1
-        versionName "1.0"
+        versionCode 11
+        versionName "1.1"
 
         externalNativeBuild {
             cmake {
@@ -119,7 +119,10 @@ dependencies {
 
     //权限库
     implementation "io.reactivex.rxjava2:rxjava:2.1.2"
-    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
+
+    // 谷歌服务
+    implementation('com.google.android.gms:play-services-places:17.0.0')
 
     //google广告标识
     implementation('com.google.android.gms:play-services-ads-identifier:18.0.1')

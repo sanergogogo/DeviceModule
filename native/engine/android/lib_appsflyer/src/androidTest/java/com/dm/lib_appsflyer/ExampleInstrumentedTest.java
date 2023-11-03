@@ -1,4 +1,4 @@
-package com.applib.lib_appsflyer;
+package com.dm.lib_appsflyer;
 
 import android.content.Context;
 

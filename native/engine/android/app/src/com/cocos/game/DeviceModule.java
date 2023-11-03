@@ -21,6 +21,8 @@ import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
 import com.applib.lib_common.ApiCallback;
 import com.applib.lib_sdkmgr.SdkManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import org.json.JSONArray;
@@ -54,6 +56,11 @@ public class DeviceModule {
         return rxPermissions;
     }
 
+    /**
+     * 获取设备名称
+     * 如果需要获取可读的设备名称(比如HUAWEI Mate 40 Pro等)，可以在脚本端处理，这样方便匹配新机型
+     * @return
+     */
     public static String getDeviceName() {
         return Build.BRAND + "|" + Build.MODEL;
     }
@@ -64,7 +71,7 @@ public class DeviceModule {
      * 1.从SharedPreferences获取id，如果能获取到 会同时更新文件(如果文件没有),否则进入第2步。
      * 2.从文件获取(android10以上从媒体数据库获取，10以下从外部存储目录获取),如果能获取到,说明应用卸载过，会同时更新SharedPreferences方便下次从sp读取，否则进入第3步。
      * 3.创建uuid,同时保存到SharedPreferences和文件。
-     * 权限：android10以上读取媒体数据库需要READ_EXTERNAL_STORAGE权限或者READ_MEDIA_IMAGES(android>=13) 10以下步需要权限
+     * 权限：android10以上读取媒体数据库需要READ_EXTERNAL_STORAGE权限或者READ_MEDIA_IMAGES(android>=13) 10以下不需要权限
      * 如果没有相应权限，且应用被卸载过或者清除过数据就会导致重新生成新的uuid
      * 所以：
      * 1.如果是严格要求uuid的应用，必须在获取uuid之前提前申请权限。
@@ -84,6 +91,10 @@ public class DeviceModule {
         return uuid;
     }
 
+    /**
+     * 获取广告id
+     * @return
+     */
     public static String getDeviceAdid() {
         do {
             if (!ad_id.isEmpty()) {
@@ -107,6 +118,16 @@ public class DeviceModule {
         } while (false);
 
         return ad_id;
+    }
+
+    // 是否支持谷歌服务
+    public static boolean hasPlayServices() {
+        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable
+                (_getContext());
+        if (resultCode != ConnectionResult.SUCCESS) {
+            return false;
+        }
+        return true;
     }
 
     // 检测网络强度
@@ -615,6 +636,60 @@ public class DeviceModule {
         String authority = "com.cocos.game.fileProvider";
         Uri contentUri = FileProvider.getUriForFile(context, authority, file);
         return contentUri;
+    }
+
+    public static boolean hasGooglePay() {
+        return GlobalConfig.HasGooglePay;
+    }
+
+    public static boolean doGooglePay(String productId, String orderId, String productType) {
+        if (!GlobalConfig.HasGooglePay) {
+            return false;
+        }
+
+        try {
+            SdkManager.doGooglePay(SDKWrapper.shared().getActivity(), productId, orderId, productType, new ApiCallback() {
+                @Override
+                public void onSuccess(final String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("code", code);
+                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("code", code);
+                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 
 }

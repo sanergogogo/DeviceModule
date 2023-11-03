@@ -84,6 +84,10 @@ public class AppActivity extends CocosActivity {
         if (GlobalConfig.HasAppsFlyer) {
             SdkManager.initAppsFlyer(this, GlobalConfig.AppsFlyerKey, GlobalConfig.ChannelId);
         }
+
+        if (GlobalConfig.HasGooglePay) {
+            SdkManager.initGooglePay(this);
+        }
     }
 
     @Override

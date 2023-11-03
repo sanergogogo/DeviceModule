@@ -28,6 +28,7 @@ const kAllFunctions = {
     'trackEventAppsFlyer': 'AppsFlyer事件',
     'trackEventAdjust': 'Adjust事件',
     'qrcode': '二维码',
+    'googlepay': 'google支付',
 };
 
 @ccclass('App')
@@ -344,6 +345,10 @@ export class App extends Component {
         qrnode.active = !qrnode.active;
         const qr = qrnode.getComponent(CQRCode);
         qr.string = 'https://baidu.com';
+    }
+
+    googlepay() {
+        MultiPlatform.instance.doGooglePay('1', new Date().getTime().toString(), 'inapp');
     }
 }
 

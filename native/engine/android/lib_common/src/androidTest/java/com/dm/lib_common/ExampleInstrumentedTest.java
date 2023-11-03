@@ -1,4 +1,4 @@
-package com.applib.lib_common;
+package com.dm.lib_common;
 
 import android.content.Context;
 

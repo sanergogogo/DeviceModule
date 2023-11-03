@@ -1,4 +1,4 @@
-package com.applib.lib_adjust;
+package com.dm.lib_adjust;
 
 import android.content.Context;
 

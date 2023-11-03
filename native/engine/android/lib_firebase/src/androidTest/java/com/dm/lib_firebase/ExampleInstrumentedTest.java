@@ -1,4 +1,4 @@
-package com.applib.lib_firebase;
+package com.dm.lib_firebase;
 
 import android.content.Context;
 

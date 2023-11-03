@@ -25,4 +25,7 @@ public class GlobalConfig {
 	// adjust
 	public static String AdjustKey = "4zf1u1v99thc";
 
+	// 是否使用googlepay
+	public static boolean HasGooglePay = true;
+
 }

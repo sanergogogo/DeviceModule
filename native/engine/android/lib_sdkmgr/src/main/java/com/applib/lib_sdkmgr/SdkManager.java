@@ -3,6 +3,7 @@ package com.applib.lib_sdkmgr;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.applib.lib_common.ApiCallback;
 
@@ -214,6 +215,32 @@ public class SdkManager {
                     SdkConfig.Adjust, "trackEvent",
                     new Class[] { String.class },
                     new Object[] { eventData });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void initGooglePay(Activity context){
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GooglePay, "getInstance",
+                    new Class[] { Activity.class }, new Object[] { context });
+            ReFlectUtils.processMethod(managerObject, "init",
+                    new Class[] {},
+                    new Object[] {});
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void doGooglePay(Activity context, String productId, String orderId, String productType, ApiCallback callback) {
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GooglePay, "getInstance",
+                    new Class[] { Activity.class }, new Object[] { context });
+            ReFlectUtils.processMethod(managerObject, "pay",
+                    new Class[] { String.class, String.class, String.class, ApiCallback.class },
+                    new Object[] { productId, orderId, productType, callback });
         } catch (Exception e) {
             e.printStackTrace();
         }

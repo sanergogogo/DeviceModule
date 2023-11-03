@@ -1,4 +1,4 @@
-package com.applib.lib_sdkmgr;
+package com.dm.lib_sdkmgr;
 
 import android.content.Context;
 

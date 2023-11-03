@@ -1,4 +1,4 @@
-package com.applib.lib_facebook;
+package com.dm.lib_facebook;
 
 import android.content.Context;
 

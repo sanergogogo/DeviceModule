@@ -475,9 +475,16 @@ export default class MultiPlatform extends Singleton<MultiPlatform>() {
      * Google支付
      * @returns 
      */
-    public doGooglePay(): boolean {
+    /**
+     * 
+     * @param productId 商品ID(从谷歌后台获取)
+     * @param orderId 内部订单号
+     * @param productType 商品类型 'inapp':消耗品 'subs':订阅
+     * @returns 
+     */
+    public doGooglePay(productId: string, orderId: string, productType: 'inapp' | 'subs' = 'inapp'): boolean {
         if (sys.isNative && sys.os == sys.OS.ANDROID) {
-            return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "doGooglePay", "()Z");
+            return native.reflection.callStaticMethod("com/cocos/game/DeviceModule", "doGooglePay", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", productId, orderId, productType);
         } else {
             log('只支持android系统');
             return false;

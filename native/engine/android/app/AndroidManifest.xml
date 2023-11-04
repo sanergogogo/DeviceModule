@@ -57,10 +57,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
-        <!-- 系统分享需要文件共享 -->
+        <!-- 系统分享需要文件共享 如果需要上架google商店 android:authorities需要修改包名(使用com.cocos.game会有冲突) -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.cocos.game.share.fileProvider"
+            android:authorities="com.cocos.game.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

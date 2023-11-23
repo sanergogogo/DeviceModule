@@ -23,3 +23,5 @@ node_modules/
 #//////////////////////////
 .idea/
 .DS_Store
+
+native/engine/android/app/release/*.aab

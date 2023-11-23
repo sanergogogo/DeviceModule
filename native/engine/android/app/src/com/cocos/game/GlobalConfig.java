@@ -16,9 +16,9 @@ public class GlobalConfig {
 	public static boolean HasFirebase = true;
 
 	// 是否使用appsflyer
-	public static boolean HasAppsFlyer = false;
+	public static boolean HasAppsFlyer = true;
 	// appsflyer
-	public static String AppsFlyerKey = "KqjtB2H9MP95w5io4xKwCT";
+	public static String AppsFlyerKey = "6Z7sPcPLx9cz6d3Vc3d4AQ";
 
 	// 是否使用adjust
 	public static boolean HasAdjust = true;

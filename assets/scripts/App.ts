@@ -293,7 +293,8 @@ export class App extends Component {
             event_type: 1,
             value: 100.00,
             currency: 'USD',
-            transaction_id: '123123'
+            transaction_id: '123123',
+            product_id: '1'
         };
         MultiPlatform.instance.trackEventAppsFlyer(eventData1);
     }
@@ -310,7 +311,8 @@ export class App extends Component {
             event_type: 1,
             value: 100.00,
             currency: 'USD',
-            transaction_id: '123123'
+            transaction_id: '123123',
+            product_id: '1'
         };
         MultiPlatform.instance.trackEventAdjust(eventData1);
     }

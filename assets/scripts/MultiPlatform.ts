@@ -42,6 +42,7 @@ export type TrackEventDataBase = {
     value: number,             // 付费金额 付费事件必须传
     currency: string,          // 付费金额单位 付费事件必须传
     transaction_id: string,    // 付费订单号 付费事件必须传
+    product_id: string,         // 商品id
 };
 
 export type TrackEventData<EventType extends number> = 

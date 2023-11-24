@@ -1,7 +1,9 @@
-package com.applib.lib_googlepay;
+package com.applib.lib_google;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -24,17 +26,25 @@ import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 import com.applib.lib_common.ApiCallback;
+import com.google.android.gms.auth.api.identity.BeginSignInRequest;
+import com.google.android.gms.auth.api.identity.BeginSignInResult;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.SignInClient;
+import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GooglePayManager {
+public class GoogleServiceManager {
 
-    private static final String TAG = "Google Pay";
+    private static final String TAG = "Google";
 
-    private static  GooglePayManager _instance = null;
+    private static GoogleServiceManager _instance = null;
     protected static Activity mActivity = null;
     protected static ApiCallback payCallback = null;
 
@@ -43,13 +53,19 @@ public class GooglePayManager {
     private String mOrderId = "";
     private String mProductType = BillingClient.ProductType.INAPP;
 
-    private GooglePayManager() {
+    // 登陆
+    private SignInClient oneTapClient;
+    private BeginSignInRequest signInRequest;
+    protected ApiCallback loginCallback = null;
+    private static final int SIGN_LOGIN = 50000;
+
+    private GoogleServiceManager() {
 
     }
 
-    public static GooglePayManager getInstance(Activity activity){
+    public static GoogleServiceManager getInstance(Activity activity){
         if (_instance == null) {
-            _instance = new GooglePayManager();
+            _instance = new GoogleServiceManager();
         }
         mActivity = activity;
         return _instance;
@@ -83,6 +99,73 @@ public class GooglePayManager {
                 .setListener(purchasesUpdatedListener)
                 .enablePendingPurchases()
                 .build();
+
+        oneTapClient = Identity.getSignInClient(mActivity);
+        signInRequest = BeginSignInRequest.builder()
+                .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
+                        .setSupported(true)
+                        .build())
+                .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                        .setSupported(true)
+                        // Your server's client ID, not your Android client ID.
+                        .setServerClientId("597461298489-3maf69lq7q74cvadl1vi8pmofoec8e52.apps.googleusercontent.com")
+                        .setFilterByAuthorizedAccounts(true)
+                        .build())
+                // Automatically sign in when exactly one credential is retrieved.
+                .setAutoSelectEnabled(true)
+                .build();
+    }
+
+    public void signIn(ApiCallback callback) {
+        loginCallback = callback;
+
+        oneTapClient.beginSignIn(signInRequest)
+                .addOnSuccessListener(mActivity, new OnSuccessListener<BeginSignInResult>() {
+                    @Override
+                    public void onSuccess(BeginSignInResult result) {
+                        try {
+                            mActivity.startIntentSenderForResult(
+                                    result.getPendingIntent().getIntentSender(), SIGN_LOGIN,
+                                    null, 0, 0, 0);
+                        } catch (IntentSender.SendIntentException e) {
+                            Log.e(TAG, "Couldn't start One Tap UI: " + e.getLocalizedMessage());
+                        }
+                    }
+                })
+                .addOnFailureListener(mActivity, new OnFailureListener() {
+                    @Override
+                    public void onFailure( Exception e) {
+                        Log.d(TAG, "onFailure "+e.getLocalizedMessage());
+                    }
+                });
+    }
+
+    public void signOut(ApiCallback callback) {
+
+    }
+
+    public void onActivityResult(Integer requestCode, Integer resultCode, Intent data){
+        Log.d(TAG, "onActivityResult: "+"resultCode:"+resultCode+"   requestCode:" +resultCode+ "  data:"+(data != null ? data.getDataString() : ""));
+        try {
+            SignInCredential credential = oneTapClient.getSignInCredentialFromIntent(data);
+            String idToken = credential.getGoogleIdToken();
+            String username = credential.getId();
+            String password = credential.getPassword();
+            if (idToken !=  null) {
+                // Got an ID token from Google. Use it to authenticate
+                // with your backend.
+                Log.d(TAG, "Got ID token.");
+                //loginCallback.onSuccess(token);
+            } else if (password != null) {
+                // Got a saved username and password. Use them to authenticate
+                // with your backend.
+                Log.d(TAG, "Got password.");
+            }
+        } catch (ApiException e) {
+            // ...
+            Log.e(TAG, "ApiException:"+e.getMessage());
+            //loginCallback.onFail("cancel");
+        }
     }
 
     // 与GooglePlay连接状态监听

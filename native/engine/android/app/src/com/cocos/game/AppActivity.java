@@ -85,8 +85,8 @@ public class AppActivity extends CocosActivity {
             SdkManager.initAppsFlyer(this, GlobalConfig.AppsFlyerKey, GlobalConfig.ChannelId);
         }
 
-        if (GlobalConfig.HasGooglePay) {
-            SdkManager.initGooglePay(this);
+        if (GlobalConfig.HasGoogleService) {
+            SdkManager.initGoogleService(this);
         }
     }
 
@@ -119,6 +119,9 @@ public class AppActivity extends CocosActivity {
 
         if (GlobalConfig.HasFacebook) {
             SdkManager.onActivityResultFacebook(this, requestCode, resultCode, data);
+        }
+        if (GlobalConfig.HasGoogleService) {
+            SdkManager.onActivityResultGoogle(this, requestCode, resultCode, data);
         }
 
         Log.i(TAG, "AppActivity onActivityResult requestCode:" + requestCode + " resultCode:" + resultCode);

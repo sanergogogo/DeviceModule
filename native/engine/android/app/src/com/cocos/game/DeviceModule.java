@@ -638,17 +638,71 @@ public class DeviceModule {
         return contentUri;
     }
 
-    public static boolean hasGooglePay() {
-        return GlobalConfig.HasGooglePay;
+    public static boolean hasGoogleService() {
+        return GlobalConfig.HasGoogleService;
     }
 
     public static boolean doGooglePay(String productId, String orderId, String productType) {
-        if (!GlobalConfig.HasGooglePay) {
+        if (!GlobalConfig.HasGoogleService) {
             return false;
+        }
+        if (true) {
+            doGoogleSignIn();
+            return true;
         }
 
         try {
             SdkManager.doGooglePay(SDKWrapper.shared().getActivity(), productId, orderId, productType, new ApiCallback() {
+                @Override
+                public void onSuccess(final String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("code", code);
+                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("code", code);
+                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean doGoogleSignIn() {
+        if (!GlobalConfig.HasGoogleService) {
+            return false;
+        }
+
+        try {
+            SdkManager.doGoogleSignIn(SDKWrapper.shared().getActivity(), new ApiCallback() {
                 @Override
                 public void onSuccess(final String code) {
                     CocosHelper.runOnGameThread(new Runnable() {

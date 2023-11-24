@@ -220,10 +220,10 @@ public class SdkManager {
         }
     }
 
-    public static void initGooglePay(Activity context){
+    public static void initGoogleService(Activity context){
         try {
             Object managerObject = ReFlectUtils.processMethod(
-                    SdkConfig.GooglePay, "getInstance",
+                    SdkConfig.GoogleService, "getInstance",
                     new Class[] { Activity.class }, new Object[] { context });
             ReFlectUtils.processMethod(managerObject, "init",
                     new Class[] {},
@@ -236,11 +236,51 @@ public class SdkManager {
     public static void doGooglePay(Activity context, String productId, String orderId, String productType, ApiCallback callback) {
         try {
             Object managerObject = ReFlectUtils.processMethod(
-                    SdkConfig.GooglePay, "getInstance",
+                    SdkConfig.GoogleService, "getInstance",
                     new Class[] { Activity.class }, new Object[] { context });
             ReFlectUtils.processMethod(managerObject, "pay",
                     new Class[] { String.class, String.class, String.class, ApiCallback.class },
                     new Object[] { productId, orderId, productType, callback });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void doGoogleSignIn(Activity context, ApiCallback callback) {
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GoogleService, "getInstance",
+                    new Class[] { Activity.class }, new Object[] { context });
+            ReFlectUtils.processMethod(managerObject, "signIn",
+                    new Class[] { ApiCallback.class },
+                    new Object[] { callback });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void doGoogleSignOut(Activity context, ApiCallback callback) {
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GoogleService, "getInstance",
+                    new Class[] { Activity.class }, new Object[] { context });
+            ReFlectUtils.processMethod(managerObject, "signOut",
+                    new Class[] { ApiCallback.class },
+                    new Object[] { callback });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void onActivityResultGoogle(Activity context, int requestCode, int resultCode, Intent data){
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GoogleService, "getInstance",
+                    new Class[] { Activity.class },
+                    new Object[] { context });
+            ReFlectUtils.processMethod(managerObject, "onActivityResult",
+                    new Class[] {Integer.class, Integer.class, Intent.class},
+                    new Object[] {requestCode, resultCode, data});
         } catch (Exception e) {
             e.printStackTrace();
         }

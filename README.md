@@ -86,13 +86,14 @@
       <string>fb-messenger-share-api</string>
       </array>
       ```
-   10. build setting -> Apple LLVM9.1 - Language - Objective C -> Weak References in Manual Retain Release YES
+   10. build setting -> Apple LLVM9.1 - Language - Objective C -> Weak References in Manual Retain Release -> YES
 6. 在项目重新引用相关文件
 ## TODO
 1. firebase ios未测试
-2. appsflyer 事件上报
-3. google pay
-4. apple pay
-5. apple login
-6. ios 消息推送 用firebase
-7. 新增branch.io的sdk以实现自定义的深度链接
+2. apple pay
+3. apple login
+4. google login待测试
+5. ios 消息推送 用firebase
+6. 新增branch.io的sdk以实现自定义的深度链接
+7. app项目的google相关代码移动到lib_google中去
+8. 检测谷歌服务是否存在或者能否使用谷歌支付，这2个好像有点不同，待测试.

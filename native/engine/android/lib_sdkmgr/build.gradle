@@ -43,7 +43,6 @@ dependencies {
     implementation project(':lib_firebase')
     implementation project(':lib_appsflyer')
     implementation project(':lib_adjust')
-
-    implementation project(':lib_googlepay')
+    implementation project(':lib_google')
 
 }

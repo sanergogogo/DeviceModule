@@ -1,4 +1,4 @@
-package com.applib.lib_googlepay;
+package com.applib.lib_google;
 
 import org.junit.Test;
 

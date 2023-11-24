@@ -3,8 +3,8 @@ plugins {
 }
 
 android {
-    namespace 'com.applib.lib_googlepay'
-    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
+    namespace 'com.applib.lib_google'
+    compileSdk 33
 
     defaultConfig {
         minSdk PROP_MIN_SDK_VERSION.toInteger()
@@ -37,6 +37,7 @@ dependencies {
     implementation project(':lib_common')
 
     implementation('com.google.android.gms:play-services-places:17.0.0')
+    implementation('com.google.android.gms:play-services-auth:20.7.0')
 
     implementation "com.android.billingclient:billing:6.0.1"
 }

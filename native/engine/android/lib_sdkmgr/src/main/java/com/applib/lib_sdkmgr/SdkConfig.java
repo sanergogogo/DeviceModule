@@ -17,6 +17,6 @@ public class SdkConfig {
     // adjust
     public static final String Adjust = "com.applib.lib_adjust.AdjustManager";
 
-    public static final String GooglePay = "com.applib.lib_googlepay.GooglePayManager";
+    public static final String GoogleService = "com.applib.lib_google.GoogleServiceManager";
 
 }

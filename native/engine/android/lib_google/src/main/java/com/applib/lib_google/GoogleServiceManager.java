@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 import com.applib.lib_common.ApiCallback;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -33,12 +35,15 @@ import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class GoogleServiceManager {
 
@@ -47,6 +52,8 @@ public class GoogleServiceManager {
     private static GoogleServiceManager _instance = null;
     protected static Activity mActivity = null;
     protected static ApiCallback payCallback = null;
+
+    private String mAdid = "";
 
     private BillingClient mBillingClient = null;
     private String mProductId = "";
@@ -74,6 +81,14 @@ public class GoogleServiceManager {
     public void init() {
         if (!checkPlayServices(mActivity))
             return;
+
+        checkGoogleAdId();
+
+        // 安装归因
+        //if (TextUtils.isEmpty(SPUtil.getString(mActivity, "InstallReferrer", ""))) {
+        //    GoogleReferrerHelper.getInstance().start(mActivity);
+        //}
+
         PurchasesUpdatedListener purchasesUpdatedListener = new PurchasesUpdatedListener() {
             @Override
             public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> purchases) {
@@ -381,6 +396,55 @@ public class GoogleServiceManager {
             return false;
         }
         return true;
+    }
+
+    public String getAdid() {
+        return mAdid;
+    }
+
+    public String getInstallReferrer() {
+        return GoogleReferrerHelper.getInstance().getInstallReferrer();
+    }
+
+    protected void checkGoogleAdId() {
+        try {
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String id = fetchAdid(mActivity.getApplicationContext());
+                        Log.i(TAG, "google adid is" + id);
+                        mAdid = id;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected String fetchAdid(Context context){
+        String adid = "";
+        AdvertisingIdClient.Info adInfo = null ;
+        try {
+            adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+        } catch (IOException e) {
+            // Unrecoverable error connecting to Google Play services (e.g.,
+            // the old version of the service doesn't support getting AdvertisingId).
+            Log.e("getAdid", "IOException");
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // Google Play services is not available entirely.
+            Log.e("getAdid", "GooglePlayServicesNotAvailableException");
+        } catch (Exception e) {
+            Log.e("getAdid", "Exception:"+e.toString());
+            // Encountered a recoverable error connecting to Google Play services.
+        }
+        if (adInfo != null) {
+            adid = adInfo.getId();
+        }
+        return adid;
     }
 
 }

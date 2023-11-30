@@ -61,13 +61,6 @@ public class AppActivity extends CocosActivity {
 
         sActivity = this;
 
-        checkGoogleAdId();
-
-        // 安装归因
-        if (GlobalConfig.HasInstallReferrer && TextUtils.isEmpty(SPUtil.getString(this, "InstallReferrer", ""))) {
-            GoogleReferrerHelper.getInstance().start(this);
-        }
-
         if (GlobalConfig.HasFacebook) {
             SdkManager.initFacebook(this);
         }
@@ -285,25 +278,6 @@ public class AppActivity extends CocosActivity {
         super.onLowMemory();
     }
 
-    protected void checkGoogleAdId() {
-        try {
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String id = GoogleAdvertisingId.getGAID(getApplicationContext());
-                        Log.i(TAG, "google ad id is" + id);
-                        DeviceModule.ad_id = id;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     // 初始化firebase推送
     protected void initFireBasePush() {
         String channelId = GlobalConfig.ChannelId;
@@ -317,7 +291,7 @@ public class AppActivity extends CocosActivity {
             int firebase = bundle.getInt("firebase");
             String message = bundle.getString("message");
             SdkManager.setMessageFirebase(message);
-            Log.e(TAG, "onResume:FireBasePushData: " + "firebase:" + firebase + " ----message:" + message);
+            Log.i(TAG, "onResume:FireBasePushData: " + "firebase:" + firebase + " ----message:" + message);
         }
 
     }

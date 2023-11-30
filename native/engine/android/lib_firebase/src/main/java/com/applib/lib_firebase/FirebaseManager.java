@@ -74,8 +74,6 @@ public class FirebaseManager {
                     bundle.putString(FirebaseAnalytics.Param.TRANSACTION_ID, transaction_id);
                 }
                 mFirebaseAnalytics.logEvent(event_name, bundle);
-
-
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

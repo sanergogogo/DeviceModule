@@ -17,12 +17,11 @@ import androidx.core.content.FileProvider;
 
 import com.cocos.lib.CocosHelper;
 import com.cocos.lib.CocosReflectionHelper;
+import com.cocos.lib.GlobalObject;
 import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
 import com.applib.lib_common.ApiCallback;
 import com.applib.lib_sdkmgr.SdkManager;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import org.json.JSONArray;
@@ -115,19 +114,29 @@ public class DeviceModule {
                 }
             }
 
+            if (GlobalConfig.HasGoogleService) {
+                ad_id = SdkManager.getGoogleAdid(SDKWrapper.shared().getActivity());
+                if (!ad_id.isEmpty()) {
+                    break;
+                }
+            }
+
         } while (false);
 
         return ad_id;
     }
 
-    // 是否支持谷歌服务
-    public static boolean hasPlayServices() {
-        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable
-                (_getContext());
-        if (resultCode != ConnectionResult.SUCCESS) {
-            return false;
+    // 获取app版本
+    public static String getAppVersion() {
+        String version = "1.0";
+        try {
+            final PackageManager packageManager = _getContext().getPackageManager();
+            PackageInfo pInfo = packageManager.getPackageInfo(_getContext().getPackageName(), 0);
+            version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
-        return true;
+        return version;
     }
 
     // 检测网络强度
@@ -363,10 +372,6 @@ public class DeviceModule {
         }
 
         return true;
-    }
-
-    public static String getInstallReferrer() {
-        return GlobalConfig.InstallReferrer;
     }
 
     public static boolean hasFacebook() {
@@ -642,6 +647,22 @@ public class DeviceModule {
         return GlobalConfig.HasGoogleService;
     }
 
+    // 谷歌服务是否可用
+    public static boolean isGooglePlayServicesAvailable() {
+        if (!GlobalConfig.HasGoogleService) {
+            return false;
+        }
+        return SdkManager.isGooglePlayServicesAvailable(SDKWrapper.shared().getActivity());
+    }
+
+    // 谷歌安装归因
+    public static String getInstallReferrer() {
+        if (!GlobalConfig.HasGoogleService) {
+            return "";
+        }
+        return SdkManager.getInstallReferrer(SDKWrapper.shared().getActivity());
+    }
+
     public static boolean doGooglePay(String productId, String orderId, String productType) {
         if (!GlobalConfig.HasGoogleService) {
             return false;
@@ -743,6 +764,10 @@ public class DeviceModule {
             return false;
         }
 
+        return true;
+    }
+
+    public static boolean doGoogleSignOut() {
         return true;
     }
 

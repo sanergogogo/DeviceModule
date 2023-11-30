@@ -39,5 +39,11 @@ dependencies {
     implementation('com.google.android.gms:play-services-places:17.0.0')
     implementation('com.google.android.gms:play-services-auth:20.7.0')
 
+    //google广告标识
+    implementation('com.google.android.gms:play-services-ads-identifier:18.0.1')
+
+    //google安装归因
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+
     implementation "com.android.billingclient:billing:6.0.1"
 }

@@ -3,7 +3,6 @@ package com.applib.lib_sdkmgr;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.applib.lib_common.ApiCallback;
 
@@ -270,6 +269,52 @@ public class SdkManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getGoogleAdid(Activity context) {
+        String result = "";
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GoogleService, "getInstance",
+                    new Class[] { Activity.class }, new Object[] { context });
+            result = (String) ReFlectUtils.processMethod(managerObject, "getAdid",
+                    new Class[] {  },
+                    new Object[] { });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static String getInstallReferrer(Activity context) {
+        String result = "";
+        try {
+            Object managerObject = ReFlectUtils.processMethod(
+                    SdkConfig.GoogleService, "getInstance",
+                    new Class[] { Activity.class }, new Object[] { context });
+            result = (String) ReFlectUtils.processMethod(managerObject, "getInstallReferrer",
+                    new Class[] {  },
+                    new Object[] { });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static boolean isGooglePlayServicesAvailable(Context context) {
+        Boolean result = false;
+        try {
+            result = (Boolean) ReFlectUtils.processMethod(
+                    SdkConfig.GoogleService, "checkPlayServices",
+                    new Class[] { Context.class },
+                    new Object[] { context });
+            if (result == null)
+                result = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     public static void onActivityResultGoogle(Activity context, int requestCode, int resultCode, Intent data){

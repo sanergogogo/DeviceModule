@@ -1,4 +1,4 @@
-package com.cocos.game;
+package com.applib.lib_google;
 import android.content.Context;
 import android.os.RemoteException;
 import android.util.Log;
@@ -21,6 +21,8 @@ public class GoogleReferrerHelper {
     private static final String TAG = "GoogleReferrerHelper";
     private InstallReferrerClient mReferrerClient;
     private Context mContext;
+
+    private String mInstallReferrer = "";
 
     public void start(Context context) {
         Log.d(TAG, "start");
@@ -58,7 +60,11 @@ public class GoogleReferrerHelper {
         });
     }
 
-    public void getArgs() {
+    public String getInstallReferrer() {
+        return mInstallReferrer;
+    }
+
+    private void getArgs() {
         try {
             ReferrerDetails response = mReferrerClient.getInstallReferrer();
             String referrerUrl = response.getInstallReferrer();
@@ -66,9 +72,9 @@ public class GoogleReferrerHelper {
             long appInstallTime = response.getInstallBeginTimestampSeconds();
             //boolean instantExperienceLaunched = response.getGooglePlayInstantParam();
 
-            GlobalConfig.InstallReferrer = String.format("%s&referrerClickTime=%d&appInstallTime=%d", referrerUrl, referrerClickTime, appInstallTime);
-            Log.d(TAG, String.format("InstallReferrer: %s", GlobalConfig.InstallReferrer));
-            SPUtil.putString(mContext, "InstallReferrer", GlobalConfig.InstallReferrer);
+            mInstallReferrer = String.format("%s&referrerClickTime=%d&appInstallTime=%d", referrerUrl, referrerClickTime, appInstallTime);
+            Log.d(TAG, String.format("InstallReferrer: %s", mInstallReferrer));
+            SPUtil.putString(mContext, "InstallReferrer", mInstallReferrer);
             end();
         } catch (RemoteException e) {
             e.printStackTrace();

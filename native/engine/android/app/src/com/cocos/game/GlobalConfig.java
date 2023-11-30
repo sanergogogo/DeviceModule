@@ -5,9 +5,7 @@ public class GlobalConfig {
 	// 渠道id
 	public static String ChannelId = "channelId";
 
-	// 安装归因
-	public static boolean HasInstallReferrer = true;
-	public static String InstallReferrer = "";
+	// 以下配置有变化，在lib_sdkmgr的build.gradle中开启或关闭相关sdk的引入
 
 	// 是否使用facebook
 	public static boolean HasFacebook = true;

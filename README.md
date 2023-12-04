@@ -7,9 +7,6 @@
         mavenCentral()
         jcenter()   // for com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar
         maven { url 'https://jitpack.io' }
-        maven {
-            url "https://developer.huawei.com/repo/"
-        }
     }
    }
    ```
@@ -33,7 +30,7 @@
    include ':lib_facebook'
    include ':lib_firebase'
    include ':lib_sdkmgr'
-   include ':lib_googlepay'
+   include ':lib_google'
    include ':lib_branch'
    project(':lib_common').projectDir    = new File(NATIVE_DIR, 'lib_common')
    project(':lib_sdkmgr').projectDir    = new File(NATIVE_DIR, 'lib_sdkmgr')
@@ -41,7 +38,7 @@
    project(':lib_facebook').projectDir    = new File(NATIVE_DIR, 'lib_facebook')
    project(':lib_adjust').projectDir    = new File(NATIVE_DIR, 'lib_adjust')
    project(':lib_firebase').projectDir    = new File(NATIVE_DIR, 'lib_firebase')
-   project(':lib_googlepay').projectDir    = new File(NATIVE_DIR, 'lib_googlepay')
+   project(':lib_google').projectDir    = new File(NATIVE_DIR, 'lib_google')
    project(':lib_branch').projectDir    = new File(NATIVE_DIR, 'lib_branch')
    ```
 ## ios项目
@@ -95,5 +92,4 @@
 4. google login待测试
 5. ios 消息推送 用firebase
 6. 新增branch.io的sdk以实现自定义的深度链接
-7. app项目的google相关代码移动到lib_google中去
-8. 检测谷歌服务是否存在或者能否使用谷歌支付，这2个好像有点不同，待测试.
+7. 检测谷歌服务是否存在或者能否使用谷歌支付，这2个好像有点不同，待测试.

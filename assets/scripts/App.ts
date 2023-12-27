@@ -2,6 +2,11 @@ import { _decorator, assetManager, Button, Camera, Component, EventHandler, Imag
 import MultiPlatform, { CheckAppInstalledName, TrackEventData } from './MultiPlatform';
 import { Graphics } from 'cc';
 import { CQRCode } from './CQRCode';
+import { find } from 'cc';
+import { size } from 'cc';
+import { director } from 'cc';
+import { Director } from 'cc';
+import { Texture2D } from 'cc';
 const { ccclass, property } = _decorator;
 
 // 所有功能
@@ -29,6 +34,7 @@ const kAllFunctions = {
     'trackEventAdjust': 'Adjust事件',
     'qrcode': '二维码',
     'googlepay': 'google支付',
+    'captureScreen': '截屏',
 };
 
 @ccclass('App')
@@ -276,7 +282,8 @@ export class App extends Component {
             event_type: 1,
             value: 100.00,
             currency: 'USD',
-            transaction_id: '123123'
+            transaction_id: '123123',
+            product_id: '1'
         };
         MultiPlatform.instance.trackEventFirebase(eventData1);
     }
@@ -352,5 +359,154 @@ export class App extends Component {
     googlepay() {
         MultiPlatform.instance.doGooglePay('1', new Date().getTime().toString(), 'inapp');
     }
+
+    /**
+     * 截屏函数
+     * 在场景新建CaptureCanvas/Camera,属性默认就行
+     * @param node 需要截图的节点，如果为null则截整个屏幕
+     * @param flipY 是否翻转图片（截图默认是反过来的，翻转会比较慢 可以改用node.scaleY = -1或者spriteFrame.flipUVY=true
+     * @returns Promise<SpriteFrame>
+     * @example
+     * screenshot().then((sf: SpriteFrame) => { // 你的代码 });
+     */
+    screenshot(node: Node = null, flipY: boolean = true) {
+        return new Promise(async (resolve) => {
+            const captureCamera = find('CaptureCanvas/Camera').getComponent(Camera);
+            const viewSize = view.getVisibleSize();
+
+            const renderTexture = new RenderTexture();
+
+            renderTexture.reset({
+                width: viewSize.width,
+                height: viewSize.height,
+            });
+            captureCamera.targetTexture = renderTexture;
+
+            await new Promise((r) => {
+                director.once(Director.EVENT_AFTER_DRAW, r);
+            });
+
+            let x = 0;
+            let y = 0;
+            let width = Math.ceil(viewSize.width);
+            let height = Math.ceil(viewSize.height);
+            if (node) {
+                const transform = node.getComponent(UITransform);
+                width = Math.ceil(transform.width);
+                height = Math.ceil(transform.height);
+                const worldPos = node.getWorldPosition();
+                x = Math.ceil(worldPos.x);
+                y = Math.ceil(worldPos.y);
+                
+            }
+
+            let buffer = renderTexture.readPixels(x, y, width, height);
+            let rtBuffer = buffer;
+            if (flipY) {
+                rtBuffer = new Uint8Array(width * height * 4);
+                for (var i = height - 1; i >= 0; i--) {
+                    for (var j = 0; j < width; j++) {
+                        rtBuffer[((height - 1 - i) * (width) + j) * 4 + 0] = buffer[(i * width + j) * 4 + 0];
+                        rtBuffer[((height - 1 - i) * (width) + j) * 4 + 1] = buffer[(i * width + j) * 4 + 1];
+                        rtBuffer[((height - 1 - i) * (width) + j) * 4 + 2] = buffer[(i * width + j) * 4 + 2];
+                        rtBuffer[((height - 1 - i) * (width) + j) * 4 + 3] = buffer[(i * width + j) * 4 + 3];
+                    }
+                }
+            }
+
+            const image = new ImageAsset({
+                _data: rtBuffer,
+                _compressed: false,
+                width,
+                height,
+                format: Texture2D.PixelFormat.RGBA8888,
+            });
+            const t = new Texture2D();
+            t.image = image;
+    
+            const sf = new SpriteFrame();
+            sf.texture = t;
+    
+            captureCamera.targetTexture = null;
+    
+            resolve(sf);
+        });
+    }
+
+    screenshot1({
+        x, y, w, h, rt
+        }: {
+        x?: number,
+        y?: number,
+        w?: number, // width 需要整数！
+        h?: number, // height 需要整数！
+        rt?: boolean, // 是否翻转图片（截图默认是反过来的，翻转会比较慢 可以改用node.scaleY = -1
+        } = {}) {
+        return new Promise(async function (resolve) {
+        const captureCamera = find('CaptureCanvas/Camera').getComponent(Camera);
+
+        const viewSize = view.getVisibleSize();
+
+        const s = size(
+            Math.ceil(w || viewSize.width),
+            Math.ceil(h || viewSize.height),
+        );
+
+        const sf = new SpriteFrame();
+        const renderTexture = new RenderTexture();
+
+        renderTexture.reset({
+            width: viewSize.width,
+            height: viewSize.height,
+        });
+        captureCamera.targetTexture = renderTexture;
+
+        const {width, height} = s;
+
+        await new Promise(function (r) {
+            director.once(Director.EVENT_AFTER_DRAW, r);
+        });
+
+        var buffer = renderTexture.readPixels(x || 0, y || 0, width, height);
+
+        var rtBuffer = buffer;
+        if (rt) {
+
+            rtBuffer = new Uint8Array(width * height * 4);
+            for (var i = height - 1; i >= 0; i--) {
+                for (var j = 0; j < width; j++) {
+                    rtBuffer[((height - 1 - i) * (width) + j) * 4 + 0] = buffer[(i * width + j) * 4 + 0];
+                    rtBuffer[((height - 1 - i) * (width) + j) * 4 + 1] = buffer[(i * width + j) * 4 + 1];
+                    rtBuffer[((height - 1 - i) * (width) + j) * 4 + 2] = buffer[(i * width + j) * 4 + 2];
+                    rtBuffer[((height - 1 - i) * (width) + j) * 4 + 3] = buffer[(i * width + j) * 4 + 3];
+                }
+            }
+        }
+
+        const image = new ImageAsset({
+            _data: rtBuffer,
+            _compressed: false,
+            width,
+            height,
+            format: Texture2D.PixelFormat.RGBA8888,
+        });
+        const t = new Texture2D();
+        t.image = image;
+
+        sf.texture = t;
+
+        captureCamera.targetTexture = null;
+
+        resolve(sf);
+    });
+        }
+
+        captureScreen() {
+
+            this.screenshot().then((sf: SpriteFrame) => {
+                this.sprite.node.active = true;
+                this.sprite.spriteFrame = sf;
+            });
+        }
 }
 

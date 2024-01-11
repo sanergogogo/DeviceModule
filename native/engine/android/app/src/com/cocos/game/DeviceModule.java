@@ -1,6 +1,7 @@
 package com.cocos.game;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -8,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -394,7 +396,7 @@ public class DeviceModule {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("success", true);
                                 jsonObject.put("token", code);
-                                JsbBridge.sendToScript("FacebookLogin", jsonObject.toString());
+                                JsbBridge.sendToScript("native-doFacebookLogin", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -413,7 +415,7 @@ public class DeviceModule {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("success", false);
                                 jsonObject.put("msg", code);
-                                JsbBridge.sendToScript("FacebookLogin", jsonObject.toString());
+                                JsbBridge.sendToScript("native-doFacebookLogin", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -438,6 +440,15 @@ public class DeviceModule {
         if (!GlobalConfig.HasFirebase) {
             return false;
         }
+        Bundle bundle = SDKWrapper.shared().getActivity().getIntent().getExtras();
+        if (bundle != null) {
+            int firebase = bundle.getInt("firebase");
+            String message = bundle.getString("message");
+            //SdkManager.setMessageFirebase(message);
+            Log.i(TAG, "onResume:FireBasePushData: " + "firebase:" + firebase + " ----message:" + message);
+        } else {
+            Log.i(TAG, "xxxxxxxxxx");
+        }
         SDKWrapper.shared().getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -452,6 +463,10 @@ public class DeviceModule {
         return true;
     }
 
+    /**
+     * 在 Android 13 及更高版本上请求运行时通知权限
+     * @return
+     */
     public static boolean requestNotificationPermission() {
         // This is only necessary for API level >= 33 (TIRAMISU)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -468,7 +483,7 @@ public class DeviceModule {
                                 try {
                                     JSONObject jsonObject = new JSONObject();
                                     jsonObject.put("success", success);
-                                    JsbBridge.sendToScript("RequestNotificationPermission", jsonObject.toString());
+                                    JsbBridge.sendToScript("native-requestNotificationPermission", jsonObject.toString());
                                 } catch (JSONException ex) {
                                     // 键为null或使用json不支持的数字格式(NaN, infinities)
                                     Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -508,7 +523,7 @@ public class DeviceModule {
                                         JSONObject jsonObject = new JSONObject();
                                         jsonObject.put("success", success);
                                         jsonObject.put("permissions", jsonArrayPermissions);
-                                        JsbBridge.sendToScript("RequestPermissions", jsonObject.toString());
+                                        JsbBridge.sendToScript("native-requestPermissions", jsonObject.toString());
                                     } catch (JSONException ex) {
                                         // 键为null或使用json不支持的数字格式(NaN, infinities)
                                         Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -541,7 +556,7 @@ public class DeviceModule {
                                     try {
                                         JSONObject jsonObject = new JSONObject();
                                         jsonObject.put("token", code);
-                                        JsbBridge.sendToScript("FirebaseToken", jsonObject.toString());
+                                        JsbBridge.sendToScript("native-getTokenFirebase", jsonObject.toString());
                                     } catch (JSONException ex) {
                                         // 键为null或使用json不支持的数字格式(NaN, infinities)
                                         Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -577,13 +592,13 @@ public class DeviceModule {
         }
     }
 
-    public static String getMessageFirebase() {
+    public static String getNotificationDataFirebase() {
         if (!GlobalConfig.HasFirebase) {
             return "";
         }
         String message = "";
         try {
-            message = SdkManager.getMessageFirebase();
+            message = SdkManager.getNotificationDataFirebase();
         } catch (Exception e) {
 
         }
@@ -682,7 +697,7 @@ public class DeviceModule {
                             try {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("code", code);
-                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                                JsbBridge.sendToScript("native-doGooglePay", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -700,7 +715,7 @@ public class DeviceModule {
                             try {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("code", code);
-                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                                JsbBridge.sendToScript("native-doGooglePay", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -732,7 +747,7 @@ public class DeviceModule {
                             try {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("code", code);
-                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                                JsbBridge.sendToScript("native-doGoogleSignIn", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -750,7 +765,7 @@ public class DeviceModule {
                             try {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("code", code);
-                                JsbBridge.sendToScript("GooglePay", jsonObject.toString());
+                                JsbBridge.sendToScript("native-doGoogleSignIn", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());

@@ -1,5 +1,6 @@
 package com.applib.lib_firebase;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,9 +24,7 @@ public class FirebaseManager {
     private static FirebaseAnalytics mFirebaseAnalytics;
     private static Context mContext;
 
-    public static String appInstanceId = "";
-    public static int jump_type = 0; // 跳转参数
-    public static String push_id = ""; // push_id, 登录回传
+    public static String notification_data = "";
 
     public  static void setMContext(Context context){
         FirebaseManager.mContext = context;
@@ -35,32 +34,14 @@ public class FirebaseManager {
     public static void init(Context context) {
         mContext = context;
         if (checkPlayServices(context)) {
-            try {
-                mFirebaseAnalytics =  FirebaseAnalytics.getInstance(context);
-                mFirebaseAnalytics.getAppInstanceId().addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            Log.i(TAG, "Fetching FCM getAppInstanceId  failed", task.getException());
-                            return;
-                        } else {
-                            String result = task.getResult();
-                            FirebaseManager.appInstanceId = result;
-                            Log.i(TAG, "getAppInstanceId: " + result);
-                        }
-                    }
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
         }
     }
 
     public static boolean trackEvent(String data){
         if (checkPlayServices(mContext)) {
             try {
-                Log.e(TAG, "logEvent: "+ data);
+                Log.i(TAG, "logEvent: "+ data);
                 JSONObject jsonObject = new JSONObject(data);
                 String event_name = jsonObject.getString("event_name");
                 int event_type = jsonObject.getInt("event_type");//1 代表 是购买 0 代表是普通事件
@@ -98,7 +79,7 @@ public class FirebaseManager {
 
                                 //Get new FCM registration token
                                 String token = task.getResult();
-                                Log.w(TAG, "Fetching FCM registration token:" + token);
+                                Log.i(TAG, "Fetching FCM registration token:" + token);
                                 callback.onSuccess(token);
                             }
                         });
@@ -112,7 +93,7 @@ public class FirebaseManager {
     public static void setAnalyticsCollectionEnabled(boolean enabled){
         if (checkPlayServices(mContext)) {
             try {
-                Log.e(TAG, "setAnalyticsCollectionEnabled: " + enabled);
+                Log.i(TAG, "setAnalyticsCollectionEnabled: " + enabled);
                 mFirebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
 
             } catch (Exception e) {
@@ -133,11 +114,11 @@ public class FirebaseManager {
                                 if (!task.isSuccessful()) {
                                     msg = topic + " Subscribe failed";
                                 }
-                                Log.d(TAG, msg);
+                                Log.i(TAG, msg);
                             }
                         });
             } catch (Exception e) {
-
+                Log.e(TAG, e.getMessage());
             }
         }
     }
@@ -153,47 +134,29 @@ public class FirebaseManager {
                                 if (!task.isSuccessful()) {
                                     msg = topic + " unsubscribe failed";
                                 }
-                                Log.d(TAG, msg);
+                                Log.i(TAG, msg);
                             }
                         });
             } catch (Exception e) {
-
+                Log.e(TAG, e.getMessage());
             }
         }
     }
 
     //设置firebase 推送信息 赋值
-    public static void setMessage(String message) {
+    public static void setNotificationData(String message) {
         try {
-            Log.d(TAG, "setMessage: "+message);
-            JSONObject object = new JSONObject(message);
-            int jump_type = 0;
-            String push_id = "";
-            if (object.has("jump_type")) {
-                jump_type = object.getInt("jump_type");
-            }
-            if (object.has("push_id")) {
-                push_id = object.getString("push_id");
-            }
-
-            FirebaseManager.jump_type = jump_type;
-            FirebaseManager.push_id = push_id;
+            Log.d(TAG, "setNotificationData: " + message);
+            FirebaseManager.notification_data = message;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //获取firebase 推送信息 赋值
-    public static String getMessage() {
-        String message = "";
-        try {
-            JSONObject object = new JSONObject();
-            object.put("jump_type", FirebaseManager.jump_type);
-            object.put("push_id", FirebaseManager.push_id);
-            message = object.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    //获取firebase 推送数据
+    public static String getNotificationData() {
+        String message = FirebaseManager.notification_data;
+        FirebaseManager.notification_data = "";
         return message;
     }
 

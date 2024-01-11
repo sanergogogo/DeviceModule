@@ -66,7 +66,7 @@ public class AppActivity extends CocosActivity {
         }
 
         if (GlobalConfig.HasFirebase) {
-            initFireBasePush();
+            initFireBaseNotificationData();
             SdkManager.initFirebase(this);
         }
 
@@ -128,7 +128,7 @@ public class AppActivity extends CocosActivity {
                         try {
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("success", true);
-                            JsbBridge.sendToScript("share", jsonObject.toString());
+                            JsbBridge.sendToScript("native-share", jsonObject.toString());
                         } catch (JSONException ex) {
                             // 键为null或使用json不支持的数字格式(NaN, infinities)
                             Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -186,7 +186,7 @@ public class AppActivity extends CocosActivity {
                         try {
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("filepath", FileUtils.getPath(sActivity, uri));
-                            JsbBridge.sendToScript("selectImageFromAlbum", jsonObject.toString());
+                            JsbBridge.sendToScript("native-selectImageFromAlbum", jsonObject.toString());
                         } catch (JSONException ex) {
                             // 键为null或使用json不支持的数字格式(NaN, infinities)
                             Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -204,7 +204,7 @@ public class AppActivity extends CocosActivity {
                             try {
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("filepath", FileUtils.getPath(sActivity, resultUri));
-                                JsbBridge.sendToScript("selectImageFromAlbum", jsonObject.toString());
+                                JsbBridge.sendToScript("native-selectImageFromAlbum", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
                                 Log.e(TAG, "json object exception:" + ex.getMessage());
@@ -279,19 +279,15 @@ public class AppActivity extends CocosActivity {
     }
 
     // 初始化firebase推送
-    protected void initFireBasePush() {
-        String channelId = GlobalConfig.ChannelId;
-        String topic = channelId;
-        Log.d("AppActivity：topic", topic);
-        SdkManager.setMContextFirebase(this);
-        SdkManager.subscribeToTopicFirebase(topic);
-
+    protected void initFireBaseNotificationData() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             int firebase = bundle.getInt("firebase");
             String message = bundle.getString("message");
-            SdkManager.setMessageFirebase(message);
-            Log.i(TAG, "onResume:FireBasePushData: " + "firebase:" + firebase + " ----message:" + message);
+            if (message != null && !message.isEmpty()) {
+                SdkManager.setNotificationDataFirebase(message);
+                Log.i(TAG, "onResume:FireBasePushData: " + "firebase:" + firebase + " ----message:" + message);
+            }
         }
 
     }

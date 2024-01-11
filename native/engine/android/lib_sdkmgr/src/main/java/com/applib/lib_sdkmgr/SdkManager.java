@@ -125,10 +125,10 @@ public class SdkManager {
         }
     }
 
-    public static void setMessageFirebase(String message) {
+    public static void setNotificationDataFirebase(String message) {
         try {
             ReFlectUtils.processMethod(
-                    SdkConfig.Firebase, "setMessage",
+                    SdkConfig.Firebase, "setNotificationData",
                     new Class[] { String.class },
                     new Object[] { message });
         } catch (Exception e) {
@@ -136,11 +136,11 @@ public class SdkManager {
         }
     }
 
-    public static String getMessageFirebase(){
+    public static String getNotificationDataFirebase(){
         String result = "";
         try {
             result = (String) ReFlectUtils.processMethod(
-                    SdkConfig.Firebase, "getMessage",
+                    SdkConfig.Firebase, "getNotificationData",
                     new Class[] { },
                     new Object[] { });
         } catch (Exception e) {

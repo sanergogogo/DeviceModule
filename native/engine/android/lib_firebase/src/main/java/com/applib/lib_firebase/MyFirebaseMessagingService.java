@@ -42,15 +42,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
-            if (/* Check if data needs to be processed by long running job */ true) {
-                scheduleJob();
-            } else {
-                handleNow();
-            }
-        }
+//        if (remoteMessage.getData().size() > 0) {
+//            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+//
+//            if (/* Check if data needs to be processed by long running job */ true) {
+//                scheduleJob();
+//            } else {
+//                handleNow();
+//            }
+//        }
 
         Log.d(TAG, "Message data payload: " + remoteMessage.getNotification());
         // Check if message contains a notification payload.
@@ -61,8 +61,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 String body = remoteMessage.getNotification().getBody();
                 String image = "";
                 String bg = "";
-                int jump_type = 0;
-                String push_id = "";
 
                 if (object.has("image")) {
                     image = object.getString("image");
@@ -70,29 +68,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 if (object.has("bg")) {
                     bg = object.getString("bg");
                 }
-                if (object.has("jump_type")) {
-                    jump_type = object.getInt("jump_type");
-                }
-                if (object.has("push_id")) {
-                    push_id = object.getString("push_id");
-                }
 
                 Bundle bundle = new Bundle();
                 bundle.putString("message",object.toString());
-                bundle.putInt("firebase",1);
-                Log.d(TAG, "Message data payload: " + body + ", image=" + image + ", title=" + title + ", bg=" + bg + ", jump_type="+jump_type + ", push_id="+push_id + "");
-                sendNotification(title, body, image, bg, intent,bundle);
+                bundle.putInt("firebase", 1);
+                Log.d(TAG, "Message data payload: " + body + ", image=" + image + ", title=" + title + ", bg=" + bg);
+                sendNotification(title, body, image, bg, intent, bundle);
 
-                FirebaseManager.jump_type = jump_type;
-                FirebaseManager.push_id = push_id;
+                FirebaseManager.notification_data = object.toString();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-//        if (remoteMessage.getNotification()!=null) {
-//            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody() + ",title=" + remoteMessage.getNotification().getTitle());
-//            sendNotification(remoteMessage);
-//        }
     }
 
     @Override
@@ -114,20 +101,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(String titleStr, String bodyStr, String image, String bg, Intent intent,Bundle bundle) {
-
         //通知点击跳转
-//        if (TextUtils.isEmpty(notification.getClickAction())) {
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
-            if (launchIntent == null) {
-                return;
-            } else {
-                launchIntent.putExtras(intent);
-                intent = launchIntent;
-            }
-//        } else {
-//            intent.setAction(notification.getClickAction());
-//            intent.addCategory(Intent.CATEGORY_DEFAULT);
-//        }
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        if (launchIntent == null) {
+            return;
+        } else {
+            launchIntent.putExtras(intent);
+            intent = launchIntent;
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtras(bundle);
         final PendingIntent pendingIntent = PendingIntent.getActivity(MyFirebaseMessagingService.this, 0 /* Request code */, intent, PendingIntent.FLAG_IMMUTABLE);
@@ -223,20 +205,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setContent(remoteViews)
                         .setContentIntent(pendingIntent);
 
-//        if (image == null) {
-//            builder.setStyle(new NotificationCompat.BigTextStyle()
-//                    .bigText(msg));
-//        } else {
-//            //设置大图标，这样通知收起时大图标就可以用来显示图片
-//            builder.setLargeIcon(image)
-//                    .setStyle(//设置为大图样式
-//                            new NotificationCompat.BigPictureStyle()
-//                                    .setBigContentTitle(title)//这里如果设置通知标题，在华为荣耀8上会直接覆盖通知的标题设置，而三星5.0手机则在通知展开时替换为这个文本，收起时恢复通知标题，好在这里不需要有两个标题。。。
-//                                    .setSummaryText(msg)//三星5.0手机如果不设置，内容文本会变成空的。。。
-//                                    .bigPicture(image)
-//                                    .bigLargeIcon(null)//显示大图时，通知的大图标为空(三星5.0手机不起作用)
-//                    );
-//        }
         NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -30,15 +30,22 @@ import com.applib.lib_common.ApiCallback;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
+import com.google.android.gms.auth.api.identity.GetSignInIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,10 +68,10 @@ public class GoogleServiceManager {
     private String mProductType = BillingClient.ProductType.INAPP;
 
     // 登陆
-    private SignInClient oneTapClient;
-    private BeginSignInRequest signInRequest;
+    private GoogleSignInClient mGoogleSignInClient;
     protected ApiCallback loginCallback = null;
     private static final int SIGN_LOGIN = 50000;
+    private static final String SERVER_CLIENT_ID = "803077739129-qenj10l9v2igdf53du78bec9nivbsd2g.apps.googleusercontent.com";
 
     private GoogleServiceManager() {
 
@@ -114,72 +121,72 @@ public class GoogleServiceManager {
                 .setListener(purchasesUpdatedListener)
                 .enablePendingPurchases()
                 .build();
+    }
 
-        oneTapClient = Identity.getSignInClient(mActivity);
-        signInRequest = BeginSignInRequest.builder()
-                .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
-                        .setSupported(true)
-                        .build())
-                .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                        .setSupported(true)
-                        // Your server's client ID, not your Android client ID.
-                        .setServerClientId("597461298489-3maf69lq7q74cvadl1vi8pmofoec8e52.apps.googleusercontent.com")
-                        .setFilterByAuthorizedAccounts(true)
-                        .build())
-                // Automatically sign in when exactly one credential is retrieved.
-                .setAutoSelectEnabled(true)
-                .build();
+    private void signInClient() {
+        if (mGoogleSignInClient == null) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions
+                    .DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .requestIdToken(SERVER_CLIENT_ID)
+                    .build();
+            mGoogleSignInClient = GoogleSignIn.getClient(mActivity, gso);
+        }
+    }
+
+    private Intent getGoogleIntent() {
+        Intent signInInten;
+        if (mGoogleSignInClient == null) {
+            signInClient();
+        }
+        signInInten = mGoogleSignInClient.getSignInIntent();
+        return signInInten;
     }
 
     public void signIn(ApiCallback callback) {
         loginCallback = callback;
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(mActivity);
+        if (account != null) {
 
-        oneTapClient.beginSignIn(signInRequest)
-                .addOnSuccessListener(mActivity, new OnSuccessListener<BeginSignInResult>() {
+        } else {
+            mActivity.startActivityForResult(getGoogleIntent(), SIGN_LOGIN);
+        }
+    }
+
+    public void signOut(ApiCallback callback) {
+        if (mGoogleSignInClient == null) {
+            signInClient();
+        }
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(mActivity, new OnCompleteListener<Void>() {
                     @Override
-                    public void onSuccess(BeginSignInResult result) {
-                        try {
-                            mActivity.startIntentSenderForResult(
-                                    result.getPendingIntent().getIntentSender(), SIGN_LOGIN,
-                                    null, 0, 0, 0);
-                        } catch (IntentSender.SendIntentException e) {
-                            Log.e(TAG, "Couldn't start One Tap UI: " + e.getLocalizedMessage());
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            callback.onSuccess("");
+                        } else {
+                            callback.onFail("google sign-out failed");
                         }
-                    }
-                })
-                .addOnFailureListener(mActivity, new OnFailureListener() {
-                    @Override
-                    public void onFailure( Exception e) {
-                        Log.d(TAG, "onFailure "+e.getLocalizedMessage());
                     }
                 });
     }
 
-    public void signOut(ApiCallback callback) {
-
-    }
-
     public void onActivityResult(Integer requestCode, Integer resultCode, Intent data){
-        Log.d(TAG, "onActivityResult: "+"resultCode:"+resultCode+"   requestCode:" +resultCode+ "  data:"+(data != null ? data.getDataString() : ""));
-        try {
-            SignInCredential credential = oneTapClient.getSignInCredentialFromIntent(data);
-            String idToken = credential.getGoogleIdToken();
-            String username = credential.getId();
-            String password = credential.getPassword();
-            if (idToken !=  null) {
-                // Got an ID token from Google. Use it to authenticate
-                // with your backend.
-                Log.d(TAG, "Got ID token.");
-                //loginCallback.onSuccess(token);
-            } else if (password != null) {
-                // Got a saved username and password. Use them to authenticate
-                // with your backend.
-                Log.d(TAG, "Got password.");
+        Log.d(TAG, "onActivityResult: "+"resultCode:"+resultCode+"   requestCode:" +requestCode+ "");
+        if (requestCode == SIGN_LOGIN) {
+            if (resultCode == Activity.RESULT_OK) {
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    loginCallback.onSuccess(account.getIdToken());
+                    Log.d(TAG, "Id:" + account.getId() + "|Email:" + account.getEmail() + "|IdToken:" + account.getIdToken());
+                } catch (ApiException e) {
+                    loginCallback.onFail("ApiException:" + e.getMessage());
+                    e.printStackTrace();
+                    Log.e(TAG, "ApiException:" + e.getMessage());
+                }
+            } else {
+                loginCallback.onFail("google sign-in resultCode!=RESULT_OK");
             }
-        } catch (ApiException e) {
-            // ...
-            Log.e(TAG, "ApiException:"+e.getMessage());
-            //loginCallback.onFail("cancel");
         }
     }
 

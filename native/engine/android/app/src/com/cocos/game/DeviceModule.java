@@ -682,8 +682,10 @@ public class DeviceModule {
         if (!GlobalConfig.HasGoogleService) {
             return false;
         }
+
         if (true) {
             doGoogleSignIn();
+
             return true;
         }
 
@@ -746,7 +748,8 @@ public class DeviceModule {
                         public void run() {
                             try {
                                 JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("code", code);
+                                jsonObject.put("success", true);
+                                jsonObject.put("idtoken", code);
                                 JsbBridge.sendToScript("native-doGoogleSignIn", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
@@ -764,7 +767,8 @@ public class DeviceModule {
                         public void run() {
                             try {
                                 JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("code", code);
+                                jsonObject.put("success", false);
+                                jsonObject.put("message", code);
                                 JsbBridge.sendToScript("native-doGoogleSignIn", jsonObject.toString());
                             } catch (JSONException ex) {
                                 // 键为null或使用json不支持的数字格式(NaN, infinities)
@@ -783,6 +787,52 @@ public class DeviceModule {
     }
 
     public static boolean doGoogleSignOut() {
+        if (!GlobalConfig.HasGoogleService) {
+            return false;
+        }
+
+        try {
+            SdkManager.doGoogleSignOut(SDKWrapper.shared().getActivity(), new ApiCallback() {
+                @Override
+                public void onSuccess(final String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("success", true);
+                                JsbBridge.sendToScript("native-doGoogleSignOut", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onFail(String code) {
+                    CocosHelper.runOnGameThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("success", false);
+                                JsbBridge.sendToScript("native-doGoogleSignOut", jsonObject.toString());
+                            } catch (JSONException ex) {
+                                // 键为null或使用json不支持的数字格式(NaN, infinities)
+                                Log.e(TAG, "json object exception:" + ex.getMessage());
+                            }
+
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            return false;
+        }
+
         return true;
     }
 

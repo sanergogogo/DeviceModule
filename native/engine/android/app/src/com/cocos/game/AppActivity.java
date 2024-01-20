@@ -33,6 +33,7 @@ import android.content.res.Configuration;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applib.lib_common.ApiCallback;
 import com.cocos.lib.CocosHelper;
 import com.cocos.lib.JsbBridge;
 import com.cocos.service.SDKWrapper;
@@ -110,14 +111,14 @@ public class AppActivity extends CocosActivity {
         super.onActivityResult(requestCode, resultCode, data);
         SDKWrapper.shared().onActivityResult(requestCode, resultCode, data);
 
+        Log.d(TAG, "AppActivity onActivityResult: "+"resultCode:"+resultCode+"   requestCode:" +requestCode+ "");
+
         if (GlobalConfig.HasFacebook) {
             SdkManager.onActivityResultFacebook(this, requestCode, resultCode, data);
         }
         if (GlobalConfig.HasGoogleService) {
             SdkManager.onActivityResultGoogle(this, requestCode, resultCode, data);
         }
-
-        Log.i(TAG, "AppActivity onActivityResult requestCode:" + requestCode + " resultCode:" + resultCode);
 
         switch (requestCode){
             case 1000:
